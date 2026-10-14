@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ekw: engineering knowledge wiki - learning skeleton. Parent POM: pins every version (checked on Maven Central
+  2026-10-09).
+
+  Which tests run is controlled by the property ekw.chapters (a JUnit tag expression):
+    ./mvnw verify                                  only the chapters listed in <ekw.chapters> below
+    ./mvnw verify -Dekw.chapters=ch02              just chapter 2's tests (red until you write the code)
+    ./mvnw verify -Pnetwork -Dekw.chapters=ch04    also the tests that clone repositories or download jars
+  When you finish a chapter, add it to <ekw.chapters>, e.g. "skeleton | ch02 | ch03", so it keeps being tested.
+  No test ever calls a paid model API.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>dev.ekw</groupId>
+  <artifactId>ekw-parent</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>ekw-core</module>
+    <module>ekw-analysis</module>
+    <module>ekw-store</module>
+    <module>ekw-llm</module>
+    <module>ekw-pipeline</module>
+    <module>ekw-query</module>
+    <module>ekw-eval</module>
+    <module>ekw-app</module>
+  </modules>
+
+  <properties>
+    <maven.compiler.release>25</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- Chapters you have finished. Add yours here as you go: skeleton | ch02 | ch03 | ... -->
+    <ekw.chapters>skeleton</ekw.chapters>
+    <surefire.excludedGroups>network</surefire.excludedGroups>
+
+    <jdt.version>3.47.0</jdt.version>
+    <jgit.version>7.8.0.202609011348-r</jgit.version>
+    <resolver.version>2.0.24</resolver.version>
+    <lucene.version>10.5.2</lucene.version>
+    <sqlite.version>3.53.4.0</sqlite.version>
+    <jdbi.version>3.55.0</jdbi.version>
+    <flyway.version>13.10.0</flyway.version>
+    <jgrapht.version>1.5.3</jgrapht.version>
+    <commonmark.version>0.30.0</commonmark.version>
+    <jackson.version>2.22.3</jackson.version>
+    <snakeyaml-engine.version>3.2</snakeyaml-engine.version>
+    <anthropic.version>2.71.0</anthropic.version>
+    <openai.version>4.80.0</openai.version>
+    <mcp.version>2.0.1</mcp.version>
+    <picocli.version>4.7.7</picocli.version>
+    <javalin.version>7.2.3</javalin.version>
+    <slf4j.version>2.0.20</slf4j.version>
+    <logback.version>1.6.5</logback.version>
+    <junit.version>6.1.3</junit.version>
+    <assertj.version>3.27.7</assertj.version>
+    <wiremock.version>3.13.2</wiremock.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency><groupId>com.fasterxml.jackson</groupId><artifactId>jackson-bom</artifactId><version>${jackson.version}</version><type>pom</type><scope>import</scope></dependency>
+      <dependency><groupId>org.junit</groupId><artifactId>junit-bom</artifactId><version>${junit.version}</version><type>pom</type><scope>import</scope></dependency>
+
+      <dependency><groupId>dev.ekw</groupId><artifactId>ekw-core</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>dev.ekw</groupId><artifactId>ekw-analysis</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>dev.ekw</groupId><artifactId>ekw-store</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>dev.ekw</groupId><artifactId>ekw-llm</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>dev.ekw</groupId><artifactId>ekw-pipeline</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>dev.ekw</groupId><artifactId>ekw-query</artifactId><version>${project.version}</version></dependency>
+      <dependency><groupId>dev.ekw</groupId><artifactId>ekw-eval</artifactId><version>${project.version}</version></dependency>
+
+      <dependency><groupId>org.eclipse.jdt</groupId><artifactId>org.eclipse.jdt.core</artifactId><version>${jdt.version}</version></dependency>
+      <dependency><groupId>org.eclipse.jgit</groupId><artifactId>org.eclipse.jgit</artifactId><version>${jgit.version}</version></dependency>
+      <!-- Brings maven-resolver 2.x plus maven-resolver-provider and maven-model-builder 3.9.16; do not override them. -->
+      <dependency><groupId>org.apache.maven.resolver</groupId><artifactId>maven-resolver-supplier-mvn3</artifactId><version>${resolver.version}</version></dependency>
+      <dependency><groupId>org.apache.lucene</groupId><artifactId>lucene-core</artifactId><version>${lucene.version}</version></dependency>
+      <dependency><groupId>org.apache.lucene</groupId><artifactId>lucene-analysis-common</artifactId><version>${lucene.version}</version></dependency>
+      <dependency><groupId>org.apache.lucene</groupId><artifactId>lucene-queryparser</artifactId><version>${lucene.version}</version></dependency>
+      <dependency><groupId>org.xerial</groupId><artifactId>sqlite-jdbc</artifactId><version>${sqlite.version}</version></dependency>
+      <dependency><groupId>org.jdbi</groupId><artifactId>jdbi3-core</artifactId><version>${jdbi.version}</version></dependency>
+      <dependency><groupId>org.flywaydb</groupId><artifactId>flyway-core</artifactId><version>${flyway.version}</version></dependency>
+      <dependency><groupId>org.jgrapht</groupId><artifactId>jgrapht-core</artifactId><version>${jgrapht.version}</version></dependency>
+      <dependency><groupId>org.commonmark</groupId><artifactId>commonmark</artifactId><version>${commonmark.version}</version></dependency>
+      <dependency><groupId>org.commonmark</groupId><artifactId>commonmark-ext-footnotes</artifactId><version>${commonmark.version}</version></dependency>
+      <dependency><groupId>org.commonmark</groupId><artifactId>commonmark-ext-yaml-front-matter</artifactId><version>${commonmark.version}</version></dependency>
+      <dependency><groupId>org.commonmark</groupId><artifactId>commonmark-ext-gfm-tables</artifactId><version>${commonmark.version}</version></dependency>
+      <dependency><groupId>org.snakeyaml</groupId><artifactId>snakeyaml-engine</artifactId><version>${snakeyaml-engine.version}</version></dependency>
+      <dependency><groupId>com.anthropic</groupId><artifactId>anthropic-java</artifactId><version>${anthropic.version}</version></dependency>
+      <dependency><groupId>com.openai</groupId><artifactId>openai-java</artifactId><version>${openai.version}</version></dependency>
+      <!-- mcp-core + the Jackson 2 mapper; the "mcp" convenience artifact pulls Jackson 3, which we avoid. -->
+      <dependency><groupId>io.modelcontextprotocol.sdk</groupId><artifactId>mcp-core</artifactId><version>${mcp.version}</version></dependency>
+      <dependency><groupId>io.modelcontextprotocol.sdk</groupId><artifactId>mcp-json-jackson2</artifactId><version>${mcp.version}</version></dependency>
+      <dependency><groupId>info.picocli</groupId><artifactId>picocli</artifactId><version>${picocli.version}</version></dependency>
+      <dependency><groupId>io.javalin</groupId><artifactId>javalin</artifactId><version>${javalin.version}</version></dependency>
+      <dependency><groupId>org.slf4j</groupId><artifactId>slf4j-api</artifactId><version>${slf4j.version}</version></dependency>
+      <dependency><groupId>ch.qos.logback</groupId><artifactId>logback-classic</artifactId><version>${logback.version}</version></dependency>
+
+      <dependency><groupId>org.assertj</groupId><artifactId>assertj-core</artifactId><version>${assertj.version}</version></dependency>
+      <dependency><groupId>org.wiremock</groupId><artifactId>wiremock</artifactId><version>${wiremock.version}</version></dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <!-- Every module gets JUnit 6 and AssertJ for tests. -->
+  <dependencies>
+    <dependency><groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter</artifactId><scope>test</scope></dependency>
+    <dependency><groupId>org.assertj</groupId><artifactId>assertj-core</artifactId><scope>test</scope></dependency>
+  </dependencies>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-clean-plugin</artifactId><version>3.5.0</version></plugin>
+        <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-resources-plugin</artifactId><version>3.5.0</version></plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.16.0</version>
+          <configuration>
+            <compilerArgs>
+              <arg>-Xlint:all,-processing,-serial,-options</arg>
+              <arg>-parameters</arg>
+            </compilerArgs>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>3.6.0</version>
+          <configuration>
+            <groups>${ekw.chapters}</groups>
+            <excludedGroups>${surefire.excludedGroups}</excludedGroups>
+            <failIfNoTests>false</failIfNoTests>
+            <failIfNoSpecifiedTests>false</failIfNoSpecifiedTests>
+          </configuration>
+        </plugin>
+        <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-jar-plugin</artifactId><version>3.5.1</version></plugin>
+        <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-install-plugin</artifactId><version>3.2.0</version></plugin>
+        <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-dependency-plugin</artifactId><version>3.11.0</version></plugin>
+        <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-enforcer-plugin</artifactId><version>3.6.3</version></plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce</id>
+            <goals><goal>enforce</goal></goals>
+            <configuration>
+              <rules>
+                <requireJavaVersion><version>[25,)</version></requireJavaVersion>
+                <requireMavenVersion><version>[3.9,)</version></requireMavenVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <!-- Tests tagged "network": clone test repositories, download jars from Maven Central. Still no model calls. -->
+      <id>network</id>
+      <properties><surefire.excludedGroups>none</surefire.excludedGroups></properties>
+    </profile>
+  </profiles>
+</project>

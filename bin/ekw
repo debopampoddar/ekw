@@ -1,0 +1,5 @@
+#!/bin/sh
+# Runs ekw from a local build (./mvnw -q package -DskipTests). Needs Java 25 on the PATH or in JAVA_HOME.
+dir=$(cd "$(dirname "$0")/.." && pwd)
+java_cmd=${JAVA_HOME:+$JAVA_HOME/bin/}java
+exec "$java_cmd" -jar "$dir/ekw-app/target/ekw.jar" "$@"

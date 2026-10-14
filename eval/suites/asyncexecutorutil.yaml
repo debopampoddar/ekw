@@ -1,0 +1,461 @@
+# Evaluation questions: debopampoddar/asyncexecutorutil (milestone 1). Every location was checked against a clone
+# at the commit below on 2026-10-09 (tools/doc-checks/check_eval.rb). Status: draft until you review it; then frozen.
+suite: asyncexecutorutil
+system: asyncexecutorutil
+commit: ef0d2c95941b822766c392fdc04640c8cc92d053
+paths:
+  P: src/main/java/com/debopam/asynexecutor/util
+  T: src/test/java/com/debopam/asynexecutor/util
+questions:
+  - id: A01
+    type: T1
+    question: "What does asyncexecutorutil do?"
+    key_points:
+      - "Runs Callable tasks asynchronously, honoring declared dependencies between tasks"
+      - "Per-task retry policies, fallbacks and success/failure callbacks"
+      - "Global success and failure handlers; optional fail-fast"
+      - "Detects missing and circular dependencies"
+      - "In-process library: everything runs in one JVM on virtual threads"
+    required_evidence:
+      - {kind: code, location: "README.md#L5", why: "stated purpose"}
+      - {kind: code, location: "P/TaskExecutor.java#L24-L27", why: "class Javadoc"}
+      - {kind: code, location: "P/TaskExecutor.java#L124", why: "virtual-thread executor"}
+    expect_not_found: false
+    must_not_say: ["distributed", "runs across machines"]
+    difficulty: easy
+
+  - id: A02
+    type: T2
+    question: "What are the main types and how do they relate to each other?"
+    key_points:
+      - "One package, com.debopam.asynexecutor.util (spelled 'asynexecutor')"
+      - "TaskExecutor orchestrates execution and is built with TaskExecutor.Builder"
+      - "Task is a record (id, action, onSuccess, onFailure, dependencies, retryPolicy, fallback) with Task.Builder"
+      - "RetryPolicy is abstract with nested None, Linear, Nonlinear"
+      - "ExecutionResult records successes, failures and execution order"
+    required_evidence:
+      - {kind: code, location: "P/Task.java#L13-L19"}
+      - {kind: code, location: "P/RetryPolicy.java#L14"}
+      - {kind: code, location: "P/ExecutionResult.java#L14-L16"}
+      - {kind: code, location: "P/TaskExecutor.java#L28-L32"}
+    expect_not_found: false
+    must_not_say: ["asyncexecutor.util"]
+    difficulty: easy
+
+  - id: A03
+    type: T2
+    question: "Which design patterns does the library use?"
+    key_points:
+      - "Builder: Task.Builder and TaskExecutor.Builder"
+      - "Strategy: RetryPolicy with interchangeable implementations chosen per task"
+      - "Static factory methods: RetryPolicy.none(), Task.builder(id)"
+      - "Immutable records for Task and ExecutionResult (with mutable collections inside)"
+      - "Callbacks and fallback; dependency graph executed via topological sort and CompletableFuture composition"
+    required_evidence:
+      - {kind: code, location: "P/Task.java#L36-L91"}
+      - {kind: code, location: "P/TaskExecutor.java#L41-L81"}
+      - {kind: code, location: "P/RetryPolicy.java#L39"}
+      - {kind: code, location: "P/RetryPolicy.java#L132-L134"}
+      - {kind: code, location: "P/Task.java#L21-L23"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: medium
+
+  - id: A04
+    type: T4
+    question: "Walk me through what happens when execute() runs several tasks with dependencies."
+    key_points:
+      - "validateDependencies then validateNoCycles run first"
+      - "Only a single task without dependencies runs synchronously; otherwise executeAsynchronously"
+      - "A virtual-thread-per-task executor is created"
+      - "Tasks are visited in topological order (Kahn's algorithm) so dependency futures exist first"
+      - "buildTaskFuture chains allOf(dependency futures) -> checkDependencies -> executeTask"
+      - "executeTask runs the task's retry policy, records the result and calls onSuccess"
+      - "All futures are joined; the global success handler runs if no fail-fast failure occurred; the executor is shut down"
+    required_evidence:
+      - {kind: code, location: "P/TaskExecutor.java#L89-L104"}
+      - {kind: code, location: "P/TaskExecutor.java#L123-L162"}
+      - {kind: code, location: "P/TaskExecutor.java#L173-L190"}
+      - {kind: code, location: "P/TaskExecutor.java#L215-L228"}
+      - {kind: code, location: "P/TaskExecutor.java#L359-L404"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: hard
+
+  - id: A05
+    type: T4
+    question: "How are circular dependencies detected?"
+    key_points:
+      - "Depth-first search with a visited set and a recursion stack (hasCycle)"
+      - "validateNoCycles throws IllegalStateException(\"Circular dependency detected\")"
+      - "Kahn's topological sort checks again and throws \"Cycle detected despite validation\""
+      - "Covered by test circularDependencyThrowsException"
+    required_evidence:
+      - {kind: code, location: "P/TaskExecutor.java#L310-L341"}
+      - {kind: code, location: "P/TaskExecutor.java#L399-L401"}
+      - {kind: code, location: "T/TaskExecutorTest.java#L424-L440"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: medium
+
+  - id: A06
+    type: T4
+    question: "If a task fails and fail-fast is off, do the tasks that depend on it still run?"
+    key_points:
+      - "Yes: handleFailure records the failure, calls onFailure and returns null without rethrowing when failFast is false"
+      - "So the failed task's future completes normally and dependents run"
+      - "The test taskDependencyOnFailedTask asserts that the dependent task has a result"
+      - "checkDependencies never sees an exception on this path"
+    required_evidence:
+      - {kind: code, location: "P/TaskExecutor.java#L239-L258"}
+      - {kind: code, location: "P/TaskExecutor.java#L198-L205"}
+      - {kind: code, location: "T/TaskExecutorTest.java#L276-L293"}
+    expect_not_found: false
+    must_not_say: ["dependents are skipped"]
+    difficulty: hard
+
+  - id: A07
+    type: T4
+    question: "What exactly does fail-fast do?"
+    key_points:
+      - "With failFast, handleFailure rethrows the error as a CompletionException"
+      - "The first error is passed to the global failure handler"
+      - "The first failure sets the failure flag, cancels all futures and calls shutdownNow on the executor"
+      - "Tasks that start afterwards see the flag and throw CancellationException"
+      - "cancel(true) on a CompletableFuture does not interrupt running work; shutdownNow is what interrupts threads"
+    required_evidence:
+      - {kind: code, location: "P/TaskExecutor.java#L135-L151"}
+      - {kind: code, location: "P/TaskExecutor.java#L215-L218"}
+      - {kind: code, location: "P/TaskExecutor.java#L254-L256"}
+      - {kind: code, location: "P/TaskExecutor.java#L264-L270"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: hard
+
+  - id: A08
+    type: T5
+    question: "How do I create two tasks where the second depends on the first, run them, and read the first one's result?"
+    key_points:
+      - "new Task.Builder<T>(id).action(callable) ... .build(); the second adds .dependencies(\"task1\")"
+      - "new TaskExecutor.Builder().addTask(t1).addTask(t2).build().execute() returns ExecutionResult"
+      - "result.getResult(\"task1\") returns an Optional"
+    required_evidence:
+      - {kind: code, location: "P/Task.java#L47-L54"}
+      - {kind: code, location: "P/Task.java#L66-L69"}
+      - {kind: code, location: "P/TaskExecutor.java#L48-L54"}
+      - {kind: code, location: "P/ExecutionResult.java#L32-L34"}
+    expect_not_found: false
+    must_not_say: ["getResults("]
+    difficulty: easy
+
+  - id: A09
+    type: T5
+    question: "How do I make a task retry 3 times with a 1-second pause? The README says .retry(RetryPolicy.linear(...))."
+    key_points:
+      - "Use Task.Builder.retryPolicy(new RetryPolicy.Linear(3, Duration.ofSeconds(1), e -> true))"
+      - "Up to 4 attempts in total (first try plus 3 retries)"
+      - "The predicate decides which exceptions are retried"
+      - "The README form does not compile: no retry(...) method and no RetryPolicy.linear factory"
+    required_evidence:
+      - {kind: code, location: "P/RetryPolicy.java#L71-L96"}
+      - {kind: code, location: "P/Task.java#L71-L74"}
+      - {kind: code, location: "README.md#L91"}
+    expect_not_found: false
+    must_not_say: ["RetryPolicy.linear(3"]
+    difficulty: medium
+
+  - id: A10
+    type: T5
+    question: "How do I give a task a fallback value, and what happens if the fallback also fails?"
+    key_points:
+      - "Task.Builder.fallback(Callable<T>)"
+      - "On failure handleFailure calls the fallback; on success it records the fallback value as the task's result and calls onSuccess"
+      - "If the fallback throws, the fallback's exception is recorded as the failure and onFailure is called"
+    required_evidence:
+      - {kind: code, location: "P/Task.java#L76-L79"}
+      - {kind: code, location: "P/TaskExecutor.java#L239-L253"}
+      - {kind: code, location: "T/TaskExecutorTest.java#L471-L486"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: medium
+
+  - id: A11
+    type: T5
+    question: "How do I get notified once when all tasks succeed, or when any task fails?"
+    key_points:
+      - "TaskExecutor.Builder.globalSuccessHandler(Runnable) and globalFailureHandler(Consumer<Exception>)"
+      - "Asynchronous path: the failure handler receives the first error; the success handler runs only if the fail-fast flag was not set"
+      - "With fail-fast off, a failed task does not trigger the global failure handler on the asynchronous path, and the success handler still runs (inconsistent with the synchronous path)"
+      - "Synchronous path (single task): triggerGlobalHandlers chooses success or failure from the recorded result"
+    required_evidence:
+      - {kind: code, location: "P/TaskExecutor.java#L61-L69"}
+      - {kind: code, location: "P/TaskExecutor.java#L135-L158"}
+      - {kind: code, location: "P/TaskExecutor.java#L344-L351"}
+    expect_not_found: false
+    must_not_say: [".onFailure((task, exception)"]
+    difficulty: hard
+
+  - id: A12
+    type: T6
+    question: "How do I add my own retry strategy?"
+    key_points:
+      - "Subclass RetryPolicy and call the protected constructor super(maxRetries, baseInterval, condition), which validates its arguments"
+      - "Implement <T> T execute(Callable<T> action)"
+      - "Attach it with Task.Builder.retryPolicy(...)"
+    required_evidence:
+      - {kind: code, location: "P/RetryPolicy.java#L24-L31"}
+      - {kind: code, location: "P/RetryPolicy.java#L39"}
+      - {kind: code, location: "P/Task.java#L71-L74"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: easy
+
+  - id: A13
+    type: T6
+    question: "Can I plug in my own ExecutorService or thread pool?"
+    key_points:
+      - "No: executeAsynchronously always creates Executors.newVirtualThreadPerTaskExecutor()"
+      - "TaskExecutor.Builder has no executor setter"
+      - "Supporting it would need a builder option and passing the executor to executeAsynchronously"
+    required_evidence:
+      - {kind: code, location: "P/TaskExecutor.java#L124"}
+      - {kind: code, location: "P/TaskExecutor.java#L41-L81"}
+    expect_not_found: true
+    must_not_say: ["executor(", "withExecutor"]
+    difficulty: medium
+
+  - id: A14
+    type: T7
+    question: "Which Java version and build tool does it need, and what are its dependencies?"
+    key_points:
+      - "Java 21 (maven.compiler.release 21)"
+      - "Maven; README asks for 3.6.0 or higher"
+      - "Only dependency: JUnit Jupiter 5.9.2 in test scope; no runtime dependencies"
+      - "maven-compiler-plugin 3.10.1, maven-surefire-plugin 3.5.2"
+    required_evidence:
+      - {kind: code, location: "pom.xml#L13"}
+      - {kind: code, location: "pom.xml#L15-L25"}
+      - {kind: code, location: "README.md#L19-L20"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: easy
+
+  - id: A15
+    type: T3
+    question: "Why does the library require Java 21?"
+    key_points:
+      - "It uses virtual threads (Executors.newVirtualThreadPerTaskExecutor), a Java 21 API"
+      - "No document states the reason; the answer is inferred from the code and must say so"
+    required_evidence:
+      - {kind: code, location: "pom.xml#L13"}
+      - {kind: code, location: "P/TaskExecutor.java#L124"}
+    expect_not_found: false
+    must_not_say: ["the README explains"]
+    difficulty: medium
+
+  - id: A16
+    type: T9
+    question: "Does the README's description of creating tasks match the code?"
+    key_points:
+      - "No: the README says to extend the Task class and implement execute"
+      - "Task is a record and cannot be extended; work is passed as a Callable via action(...)"
+    required_evidence:
+      - {kind: code, location: "README.md#L38"}
+      - {kind: code, location: "P/Task.java#L13-L19"}
+      - {kind: code, location: "P/Task.java#L51-L54"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: easy
+
+  - id: A17
+    type: T9
+    question: "Does the README's global failure-handling example compile?"
+    key_points:
+      - "No: TaskExecutor.Builder has no onFailure((task, exception) -> ...) method"
+      - "The global handler is globalFailureHandler(Consumer<Exception>)"
+      - "Per-task failure callbacks exist as Task.Builder.onFailure(Consumer<Exception>)"
+    required_evidence:
+      - {kind: code, location: "README.md#L74-L78"}
+      - {kind: code, location: "P/TaskExecutor.java#L66-L69"}
+      - {kind: code, location: "P/Task.java#L61-L64"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: medium
+
+  - id: A18
+    type: T9
+    question: "List every place where the README disagrees with the code."
+    key_points:
+      - "L38: extend Task / implement execute (Task is a record)"
+      - "L62: getResults returns a map (no such method; successes() and getResult(id) returning Optional)"
+      - "L77: onFailure on TaskExecutor.Builder (use globalFailureHandler)"
+      - "L91: .retry(RetryPolicy.linear(...)) (use retryPolicy(new RetryPolicy.Linear(...)))"
+      - "L96: an ExampleUsage class (does not exist)"
+    required_evidence:
+      - {kind: code, location: "README.md#L38"}
+      - {kind: code, location: "README.md#L62"}
+      - {kind: code, location: "README.md#L77"}
+      - {kind: code, location: "README.md#L91"}
+      - {kind: code, location: "README.md#L96"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: hard
+
+  - id: A19
+    type: T9
+    question: "Does execute()'s Javadoc correctly describe what happens when a dependency is missing?"
+    key_points:
+      - "No: the Javadoc says IllegalStateException for validation failures including missing dependencies"
+      - "validateDependencies throws IllegalArgumentException(\"Missing dependency: ...\")"
+      - "The test missingDependencyThrowsException expects IllegalArgumentException"
+    required_evidence:
+      - {kind: code, location: "P/TaskExecutor.java#L84-L88"}
+      - {kind: code, location: "P/TaskExecutor.java#L289-L303"}
+      - {kind: code, location: "T/TaskExecutorTest.java#L606-L631"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: hard
+
+  - id: A20
+    type: T10
+    question: "Can tasks be distributed across several machines?"
+    key_points:
+      - "Not supported: tasks run in one JVM on an in-process virtual-thread executor"
+      - "No networking, serialization or messaging code or dependency"
+    required_evidence:
+      - {kind: code, location: "P/TaskExecutor.java#L124"}
+      - {kind: code, location: "pom.xml#L18-L26"}
+    expect_not_found: true
+    must_not_say: ["supports distributed", "cluster mode"]
+    difficulty: easy
+
+  - id: A21
+    type: T10
+    question: "Is there a per-task timeout?"
+    key_points:
+      - "No: Task has no timeout component and the executor applies no timeout (no orTimeout, no timed join)"
+    required_evidence:
+      - {kind: code, location: "P/Task.java#L13-L19"}
+      - {kind: code, location: "P/TaskExecutor.java#L155"}
+    expect_not_found: true
+    must_not_say: ["timeout(", "orTimeout is used"]
+    difficulty: medium
+
+  - id: A22
+    type: T10
+    question: "Can I give tasks priorities?"
+    key_points:
+      - "No: there is no priority in Task, and ordering comes only from dependencies (topological order)"
+    required_evidence:
+      - {kind: code, location: "P/Task.java#L13-L19"}
+      - {kind: code, location: "P/TaskExecutor.java#L359-L404"}
+    expect_not_found: true
+    must_not_say: ["priority("]
+    difficulty: easy
+
+  - id: A23
+    type: T10
+    question: "Does it detect circular dependencies before running anything?"
+    key_points:
+      - "Yes: validateNoCycles runs in execute() before any task starts and throws IllegalStateException"
+    required_evidence:
+      - {kind: code, location: "P/TaskExecutor.java#L90-L91"}
+      - {kind: code, location: "P/TaskExecutor.java#L310-L322"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: easy
+
+  - id: A24
+    type: T11
+    question: "Where is the execution order computed, and with which algorithm?"
+    key_points:
+      - "TaskExecutor.topologicalSort, Kahn's algorithm (in-degree counting with a queue)"
+    required_evidence:
+      - {kind: code, location: "P/TaskExecutor.java#L359-L404"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: easy
+
+  - id: A25
+    type: T11
+    question: "Where are task results and failures recorded?"
+    key_points:
+      - "ExecutionResult.recordSuccess and recordFailure, which also append to executionOrder"
+      - "Called from executeTask (success), handleFailure (fallback success and failure)"
+    required_evidence:
+      - {kind: code, location: "P/ExecutionResult.java#L22-L30"}
+      - {kind: code, location: "P/TaskExecutor.java#L222"}
+      - {kind: code, location: "P/TaskExecutor.java#L243"}
+      - {kind: code, location: "P/TaskExecutor.java#L251"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: easy
+
+  - id: A26
+    type: T12
+    question: "What calls RetryPolicy.execute?"
+    key_points:
+      - "In main code only TaskExecutor.executeTask (task.retryPolicy().execute(task.action()))"
+      - "It dispatches virtually to None, Linear or Nonlinear"
+      - "Tests also call policies directly (RetryPolicyTest)"
+    required_evidence:
+      - {kind: code, location: "P/TaskExecutor.java#L221"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: easy
+
+  - id: A27
+    type: T4
+    question: "Is ExecutionResult safe to use when tasks run in parallel?"
+    key_points:
+      - "No: it is backed by HashMap and ArrayList"
+      - "recordSuccess and recordFailure mutate them from tasks running on concurrent virtual threads without synchronization"
+      - "This is a data race (behavior not executed; inferred from code)"
+    required_evidence:
+      - {kind: code, location: "P/ExecutionResult.java#L18-L30"}
+      - {kind: code, location: "P/TaskExecutor.java#L186-L189"}
+    expect_not_found: false
+    must_not_say: ["thread-safe"]
+    difficulty: hard
+
+  - id: A28
+    type: T4
+    question: "Can I reuse one Nonlinear retry policy instance across tasks?"
+    key_points:
+      - "Not safely: the Fibonacci position (prev, current) is kept in instance fields that are never reset"
+      - "Reuse continues the sequence (longer delays) and concurrent use is not thread-safe"
+      - "Delays are baseInterval x 1, 2, 3, 5, 8 ...; a test comment says 1,1,2, which is inaccurate"
+    required_evidence:
+      - {kind: code, location: "P/RetryPolicy.java#L101-L130"}
+      - {kind: code, location: "T/RetryPolicyTest.java#L85"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: hard
+
+  - id: A29
+    type: T4
+    question: "What happens when execute() runs a single task with no dependencies?"
+    key_points:
+      - "It runs synchronously on the calling thread (executeSynchronously), not on a virtual thread"
+      - "Global handlers are then chosen from the result (triggerGlobalHandlers)"
+      - "With fail-fast on, a failure's CompletionException propagates to the caller, because only the asynchronous path is wrapped in try/catch"
+    required_evidence:
+      - {kind: code, location: "P/TaskExecutor.java#L93-L102"}
+      - {kind: code, location: "P/TaskExecutor.java#L111-L116"}
+      - {kind: code, location: "P/TaskExecutor.java#L344-L351"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: medium
+
+  - id: A30
+    type: T4
+    question: "Are exceptions from asynchronous execution ever swallowed?"
+    key_points:
+      - "Yes: execute() catches RuntimeException from executeAsynchronously and ignores it (empty catch body)"
+      - "Validation exceptions are thrown before that try block and do reach the caller"
+    required_evidence:
+      - {kind: code, location: "P/TaskExecutor.java#L96-L101"}
+      - {kind: code, location: "P/TaskExecutor.java#L90-L91"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: medium

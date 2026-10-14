@@ -1,0 +1,13 @@
+# Spike S1 only: two components chosen by hand. Part C replaces this with the components.propose@1 call.
+system: asyncexecutorutil
+components:
+  - slug: task-model-and-execution
+    title: Task model and execution
+    types:
+      - java:com.debopam.asynexecutor.util.Task
+      - java:com.debopam.asynexecutor.util.TaskExecutor
+      - java:com.debopam.asynexecutor.util.ExecutionResult
+  - slug: retry-policies
+    title: Retry policies
+    types:
+      - java:com.debopam.asynexecutor.util.RetryPolicy

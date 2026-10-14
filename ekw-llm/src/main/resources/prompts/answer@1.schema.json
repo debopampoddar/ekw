@@ -1,0 +1,15 @@
+{
+  "type": "object", "additionalProperties": false,
+  "required": ["outcome", "answer_markdown", "claims", "synthesis", "checked", "open_question", "confidence", "confidence_reason"],
+  "properties": {
+    "outcome": {"enum": ["answered", "not_found", "documented_unsupported", "inconclusive"]},
+    "answer_markdown": {"type": "string", "description": "prose; cite as [E7]"},
+    "claims": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["sentence", "evidence"],
+      "properties": {"sentence": {"type": "string"}, "evidence": {"type": "array", "items": {"type": "string"}}}}},
+    "synthesis": {"type": "array", "items": {"type": "string"}},
+    "checked": {"type": "array", "items": {"type": "string"}},
+    "open_question": {"type": ["string", "null"]},
+    "confidence": {"enum": ["high", "medium", "low"]},
+    "confidence_reason": {"type": "string"}
+  }
+}

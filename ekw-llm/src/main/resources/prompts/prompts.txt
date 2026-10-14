@@ -1,0 +1,5 @@
+# Prompts this build ships: <id>@<version>. Schemas live next to them as <id>@<version>.schema.json.
+writer.system@1
+writer.page@1
+writer.page.update@1
+answer.system@1

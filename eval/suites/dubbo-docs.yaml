@@ -1,0 +1,188 @@
+# Evaluation questions: Dubbo documents + code (milestone 2; seed set of 12, grown to 30 at the start of that
+# milestone). Documents: apache/dubbo-website at 84b35ebdab20a54da2c740aa8428a375ff43b481 (2026-09-03), English pages
+# under content/en/overview. Code: apache/dubbo at a87b134859e1b3d0871e20b9eac848abd2f0b50c.
+# Locations are relative to a folder holding both checkouts as dubbo/ and dubbo-website/. Checked 2026-10-09.
+suite: dubbo-docs
+system: dubbo
+commit: a87b134859e1b3d0871e20b9eac848abd2f0b50c
+documents_commit: 84b35ebdab20a54da2c740aa8428a375ff43b481
+paths:
+  W: dubbo-website/content/en/overview
+  F: dubbo-website/content/en/overview/mannual/java-sdk/reference-manual/faq
+  C: dubbo/dubbo-common/src/main/java/org/apache/dubbo/common
+questions:
+  - id: W01
+    type: T8
+    question: "Our provider logs show Dubbo error 0-1. What is happening and what should I change?"
+    key_points:
+      - "Thread pool exhausted: the provider's business threads are all busy and new requests are rejected"
+      - "Default is 200 threads (the runbook says so and the code's DEFAULT_THREADS is 200)"
+      - "Causes: consumer concurrency too high, or provider threads blocked on external calls"
+      - "Steps: check the access log, inspect threads with jps/jstack, raise dubbo.provider.threads, or add provider servers"
+      - "In code, AbortPolicyWithReport logs 0-1 when the pool rejects a task"
+    required_evidence:
+      - {kind: doc, location: "doc:F/0/1.md#L14-L25"}
+      - {kind: code, location: "C/constants/CommonConstants.java#L111"}
+      - {kind: code, location: "C/threadpool/support/AbortPolicyWithReport.java#L123"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: medium
+
+  - id: W02
+    type: T9
+    question: "Does the 0-1 runbook's default thread count still match the code?"
+    key_points:
+      - "Yes: both say 200 (DEFAULT_THREADS = 200, read through the 'threads' key by FixedThreadPool)"
+      - "A correct answer reports agreement and does not invent a discrepancy"
+    required_evidence:
+      - {kind: doc, location: "doc:F/0/1.md#L15"}
+      - {kind: code, location: "C/constants/CommonConstants.java#L111"}
+      - {kind: code, location: "C/threadpool/support/fixed/FixedThreadPool.java#L55"}
+    expect_not_found: false
+    must_not_say: ["does not match", "differs"]
+    difficulty: medium
+
+  - id: W03
+    type: T8
+    question: "What does error 5-1 mean, and is it about the configuration center or the registry?"
+    key_points:
+      - "The runbook calls it a configuration-center connection failure (center down, wrong address or port, firewall) with matching steps"
+      - "In code the constant is CONFIG_FAILED_CONNECT_REGISTRY = \"5-1\" (config module), a name that suggests the registry"
+      - "It is logged by the Apollo and ZooKeeper dynamic-configuration (configuration center) implementations, and by the Curator5 ZooKeeper client, which registries also use"
+      - "So the runbook fits the configuration-center sites; the constant's name is misleading"
+    required_evidence:
+      - {kind: doc, location: "doc:F/5/1.md#L8-L27"}
+      - {kind: code, location: "C/constants/LoggerCodeConstants.java#L302"}
+      - {kind: code, location: "dubbo/dubbo-configcenter/dubbo-configcenter-apollo/src/main/java/org/apache/dubbo/configcenter/support/apollo/ApolloDynamicConfiguration.java#L127"}
+      - {kind: code, location: "dubbo/dubbo-configcenter/dubbo-configcenter-zookeeper/src/main/java/org/apache/dubbo/configcenter/support/zookeeper/ZookeeperDynamicConfiguration.java#L79"}
+      - {kind: code, location: "dubbo/dubbo-remoting/dubbo-remoting-zookeeper-curator5/src/main/java/org/apache/dubbo/remoting/zookeeper/curator5/Curator5ZookeeperClient.java#L109"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: hard
+
+  - id: W04
+    type: T9
+    question: "The 1-1 'Invalid Address' page says the check was removed. Is that consistent with the code?"
+    key_points:
+      - "The page says the log can be ignored and the check was removed in 3.1.7"
+      - "The code still defines REGISTRY_ADDRESS_INVALID = \"1-1\", but nothing in main code logs it"
+      - "So the page is consistent with the code: no drift"
+    required_evidence:
+      - {kind: doc, location: "doc:F/1/1.md#L14-L26"}
+      - {kind: code, location: "C/constants/LoggerCodeConstants.java#L98"}
+    expect_not_found: false
+    must_not_say: ["is still logged"]
+    difficulty: hard
+
+  - id: W05
+    type: T3
+    question: "Why did Dubbo 3 introduce application-level service discovery?"
+    key_points:
+      - "Interface-level registration makes registry data grow with every interface: redundant address data"
+      - "Goal: cut resource use of service discovery (registry capacity, consumer address parsing) to scale horizontally"
+      - "Goal: fit infrastructure discovery models such as Kubernetes and service mesh"
+      - "In code: ServiceDiscoveryRegistry and the register-mode setting (interface, instance, all)"
+    required_evidence:
+      - {kind: doc, location: "doc:W/reference/proposals/service-discovery.md#L15-L18"}
+      - {kind: doc, location: "doc:W/reference/proposals/service-discovery.md#L63-L72"}
+      - {kind: code, location: "dubbo/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/client/ServiceDiscoveryRegistry.java#L75"}
+      - {kind: code, location: "C/constants/RegistryConstants.java#L63-L75"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: medium
+
+  - id: W06
+    type: T10
+    question: "Can I enable adaptive flow control by setting flowcontrol to heuristicSmoothingFlowControl in this Dubbo code?"
+    key_points:
+      - "The proposal describes it (flowcontrol = autoConcurrencyLimier or heuristicSmoothingFlowControl)"
+      - "Not found in this repository at commit a87b134: no such classes or settings in the code"
+      - "Near miss: Triple's HTTP/2 flow controllers are a different mechanism"
+      - "The answer flags a document-code disagreement and does not claim the feature works here"
+    required_evidence:
+      - {kind: doc, location: "doc:W/reference/proposals/heuristic-flow-control.md#L103-L125"}
+      - {kind: code, location: "dubbo/dubbo-rpc/dubbo-rpc-triple/src/main/java/org/apache/dubbo/rpc/protocol/tri/TripleHttp2Protocol.java#L131"}
+    expect_not_found: true
+    must_not_say: ["set flowcontrol=heuristicSmoothingFlowControl and it works"]
+    difficulty: hard
+
+  - id: W07
+    type: T9
+    question: "The flow-control proposal says to set loadbalance to p2c or adaptive. Are both available?"
+    key_points:
+      - "adaptive: yes (AdaptiveLoadBalance, registered as 'adaptive')"
+      - "p2c: no P2C load balancer is registered or implemented in this repository"
+      - "Beware: a text search for 'p2c' matches 'Http2Connection' in unrelated code"
+    required_evidence:
+      - {kind: doc, location: "doc:W/reference/proposals/heuristic-flow-control.md#L40"}
+      - {kind: code, location: "dubbo/dubbo-cluster/src/main/resources/META-INF/dubbo/internal/org.apache.dubbo.rpc.cluster.LoadBalance#L1-L6"}
+      - {kind: code, location: "dubbo/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/loadbalance/AdaptiveLoadBalance.java#L36"}
+    expect_not_found: false
+    must_not_say: ["p2c is available"]
+    difficulty: hard
+
+  - id: W08
+    type: T3
+    question: "What problems with the older load balancers motivated the adaptive load balancer?"
+    key_points:
+      - "ShortestResponse often degrades to random because response times differ little, and response time is not throughput capacity"
+      - "LeastActive's active-connection count also fails to reflect capacity"
+      - "Hence a fairness-based P2C algorithm and an adaptive algorithm that estimates provider throughput"
+    required_evidence:
+      - {kind: doc, location: "doc:W/reference/proposals/heuristic-flow-control.md#L22-L30"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: medium
+
+  - id: W09
+    type: T13
+    question: "Has anyone asked for more error codes to be covered by the troubleshooting pages?"
+    key_points:
+      - "Yes: apache/dubbo issue #10510, '[Discussion] Adding more cases (error codes) in error code based troubleshooting'"
+    required_evidence:
+      - {kind: ticket, location: "url:https://github.com/apache/dubbo/issues/10510"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: easy
+
+  - id: W10
+    type: T8
+    question: "Where can error 0-2 'Illegal Property Value' come from?"
+    key_points:
+      - "Code: COMMON_PROPERTY_TYPE_MISMATCH = \"0-2\""
+      - "Logged for example for an invalid migration threshold (DefaultMigrationAddressComparator) and an invalid migration delay (MigrationRuleListener), and in CacheableFailbackRegistry"
+      - "The runbook page gives causes and steps"
+    required_evidence:
+      - {kind: doc, location: "doc:F/0/2.md#L8-L19"}
+      - {kind: code, location: "C/constants/LoggerCodeConstants.java#L40"}
+      - {kind: code, location: "dubbo/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/client/migration/DefaultMigrationAddressComparator.java#L85"}
+      - {kind: code, location: "dubbo/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/client/migration/MigrationRuleListener.java#L155"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: medium
+
+  - id: W11
+    type: T8
+    question: "We see error 4-21 'Unsafe serialization data detected'. Is there a runbook, and what in the code raises it?"
+    key_points:
+      - "Yes, a troubleshooting page exists for 4-21"
+      - "Code: PROTOCOL_UNTRUSTED_SERIALIZE_CLASS = \"4-21\", logged by DefaultSerializeClassChecker when a class is not trusted for deserialization"
+    required_evidence:
+      - {kind: doc, location: "doc:F/4/21.md#L8-L27"}
+      - {kind: code, location: "C/constants/LoggerCodeConstants.java#L299"}
+      - {kind: code, location: "C/utils/DefaultSerializeClassChecker.java#L115"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: medium
+
+  - id: W12
+    type: T1
+    question: "Which design proposals does the Dubbo documentation contain?"
+    key_points:
+      - "Seven: Dubbo Admin control plane architecture; adaptive load balancing and flow control; metrics tracking; Rest protocol; registry, configuration and metadata centers; application-level service discovery; Triple multi content-type support"
+    required_evidence:
+      - {kind: doc, location: "doc:W/reference/proposals/service-discovery.md#L8"}
+      - {kind: doc, location: "doc:W/reference/proposals/heuristic-flow-control.md#L8"}
+    expect_not_found: false
+    must_not_say: []
+    difficulty: easy

@@ -14,22 +14,33 @@ import java.util.Optional;
  */
 public final class GradingSheet {
 
-    /** One answer to grade. */
+    /**
+     * One answer to grade.
+     */
     public record Answer(String questionId, String setup, String model, String question, List<String> keyPoints,
-                         String answerMarkdown, BigDecimal costUsd, long inputTokens, long outputTokens, int toolCalls) {}
+                         String answerMarkdown, BigDecimal costUsd, long inputTokens, long outputTokens, int toolCalls) {
+    }
 
-    /** Per setup and model: mean score, answers with score >= 0.75 ("correct"), cost, cost per correct answer. */
+    /**
+     * Per setup and model: mean score, answers with score >= 0.75 ("correct"), cost, cost per correct answer.
+     */
     public record Summary(String setup, String model, int answers, double meanScore, int correct,
-                          BigDecimal totalCostUsd, Optional<BigDecimal> costPerCorrectUsd) {}
+                          BigDecimal totalCostUsd, Optional<BigDecimal> costPerCorrectUsd) {
+    }
 
-    private GradingSheet() {}
+    private GradingSheet() {
+    }
 
-    /** The sheet to fill in, with empty score cells. */
+    /**
+     * The sheet to fill in, with empty score cells.
+     */
     public static String render(List<Answer> answers) {
         throw Todo.chapter(12, "GradingSheet.render");
     }
 
-    /** Reads the filled sheet. An empty or invalid score is an IllegalStateException naming the answer and key point. */
+    /**
+     * Reads the filled sheet. An empty or invalid score is an IllegalStateException naming the answer and key point.
+     */
     public static List<Summary> summarize(String filledSheet, List<Answer> answers) {
         throw Todo.chapter(12, "GradingSheet.summarize");
     }

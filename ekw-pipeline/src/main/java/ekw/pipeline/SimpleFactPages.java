@@ -12,7 +12,9 @@ import ekw.core.Todo;
  */
 public final class SimpleFactPages {
 
-    /** @param commitTime ISO-8601 commit time; used as generated.at so regeneration gives the same bytes */
+    /**
+     * @param commitTime ISO-8601 commit time; used as generated.at so regeneration gives the same bytes
+     */
     public SimpleFactPages(Facts.FactsStore facts, String system, String commit, String commitTime) {
         // TODO (chapter 11): keep the arguments.
     }
@@ -28,7 +30,9 @@ public final class SimpleFactPages {
         throw Todo.chapter(11, "SimpleFactPages.typePage");
     }
 
-    /** "java:demo.Circle" -> "demo.Circle.md". */
+    /**
+     * "java:demo.Circle" -> "demo.Circle.md".
+     */
     public static String fileName(Facts.SymbolId type) {
         throw Todo.chapter(11, "SimpleFactPages.fileName");
     }

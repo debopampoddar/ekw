@@ -31,8 +31,10 @@ class MarkdownPageTest {
                 # Retry policies
                 """;
         MarkdownPage p = MarkdownPage.parse(page);
-        assertThat(p.frontmatter().keySet()).containsExactly("type", "x-future-key", "title");
-        assertThat(MarkdownPage.parse(p.render()).frontmatter()).isEqualTo(p.frontmatter());
+        assertThat(p.frontmatter()
+                    .keySet()).containsExactly("type", "x-future-key", "title");
+        assertThat(MarkdownPage.parse(p.render())
+                               .frontmatter()).isEqualTo(p.frontmatter());
         assertThat(p.body()).isEqualTo("# Retry policies\n");
     }
 
@@ -43,13 +45,16 @@ class MarkdownPageTest {
         assertThat(MarkdownPage.parse(once).render()).isEqualTo(once);
     }
 
-    /** The stage 1 example page: every field, including x-ekw and sources, survives a round trip. */
+    /**
+     * The stage 1 example page: every field, including x-ekw and sources, survives a round trip.
+     */
     @Test
     void exampleComponentPageRoundTrips() throws IOException {
         MarkdownPage p = MarkdownPage.parse(resource("/retry-policies.md"));
         assertThat(p.type()).isEqualTo("Component");
         @SuppressWarnings("unchecked")
-        List<Map<String, Object>> sources = (List<Map<String, Object>>) p.frontmatter().get("sources");
+        List<Map<String, Object>> sources = (List<Map<String, Object>>) p.frontmatter()
+                                                                         .get("sources");
         assertThat(sources).extracting(s -> s.get("id")).contains("rp-linear");
         MarkdownPage again = MarkdownPage.parse(p.render());
         assertThat(again.frontmatter()).isEqualTo(p.frontmatter());

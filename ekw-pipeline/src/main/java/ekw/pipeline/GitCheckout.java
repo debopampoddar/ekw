@@ -14,29 +14,40 @@ import java.util.List;
  */
 public final class GitCheckout implements AutoCloseable {
 
-    private GitCheckout() {}
+    private GitCheckout() {
+    }
 
-    /** Clones {@code url} into {@code dir} on first use (no working tree yet); otherwise opens it and fetches. */
+    /**
+     * Clones {@code url} into {@code dir} on first use (no working tree yet); otherwise opens it and fetches.
+     */
     public static GitCheckout open(String url, Path dir) {
         throw Todo.chapter(3, "GitCheckout.open");
     }
 
-    /** Full SHA of origin/{@code branch} after the fetch. */
+    /**
+     * Full SHA of origin/{@code branch} after the fetch.
+     */
     public String head(String branch) {
         throw Todo.chapter(3, "GitCheckout.head");
     }
 
-    /** Moves the working tree to {@code commit} (detached). */
+    /**
+     * Moves the working tree to {@code commit} (detached).
+     */
     public void checkout(String commit) {
         throw Todo.chapter(3, "GitCheckout.checkout");
     }
 
-    /** The commit's committer time. */
+    /**
+     * The commit's committer time.
+     */
     public Instant commitTime(String commit) {
         throw Todo.chapter(3, "GitCheckout.commitTime");
     }
 
-    /** Paths changed between two commits, renames detected: a rename is reported as "old -> new". */
+    /**
+     * Paths changed between two commits, renames detected: a rename is reported as "old -> new".
+     */
     public List<String> changedPaths(String fromCommit, String toCommit) {
         throw Todo.chapter(3, "GitCheckout.changedPaths");
     }

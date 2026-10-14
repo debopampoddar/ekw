@@ -16,13 +16,13 @@ questions:
       - "MapperMethod.execute dispatches on the SQL command type (INSERT, UPDATE, DELETE, SELECT, FLUSH) to SqlSession methods"
       - "SqlSession calls the Executor"
     required_evidence:
-      - {kind: code, location: "M/session/defaults/DefaultSqlSession.java#L285"}
-      - {kind: code, location: "M/binding/MapperRegistry.java#L44"}
-      - {kind: code, location: "M/binding/MapperProxyFactory.java#L47"}
-      - {kind: code, location: "M/binding/MapperProxy.java#L59-L70"}
-      - {kind: code, location: "M/binding/MapperMethod.java#L57-L75"}
+      - { kind: code, location: "M/session/defaults/DefaultSqlSession.java#L285" }
+      - { kind: code, location: "M/binding/MapperRegistry.java#L44" }
+      - { kind: code, location: "M/binding/MapperProxyFactory.java#L47" }
+      - { kind: code, location: "M/binding/MapperProxy.java#L59-L70" }
+      - { kind: code, location: "M/binding/MapperMethod.java#L57-L75" }
     expect_not_found: false
-    must_not_say: ["bytecode generation is used for mapper proxies"]
+    must_not_say: [ "bytecode generation is used for mapper proxies" ]
     difficulty: hard
 
   - id: M02
@@ -34,12 +34,12 @@ questions:
       - "If cacheEnabled (default true) it wraps the executor in CachingExecutor"
       - "Finally interceptorChain.pluginAll wraps it with plugins"
     required_evidence:
-      - {kind: code, location: "M/session/ExecutorType.java#L21-L23"}
-      - {kind: code, location: "M/session/Configuration.java#L132"}
-      - {kind: code, location: "M/session/Configuration.java#L735-L748"}
-      - {kind: code, location: "M/session/Configuration.java#L113"}
+      - { kind: code, location: "M/session/ExecutorType.java#L21-L23" }
+      - { kind: code, location: "M/session/Configuration.java#L132" }
+      - { kind: code, location: "M/session/Configuration.java#L735-L748" }
+      - { kind: code, location: "M/session/Configuration.java#L113" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: medium
 
   - id: M03
@@ -50,11 +50,11 @@ questions:
       - "It uses a TransactionalCacheManager so cache writes are committed or rolled back with the session"
       - "It is applied when cacheEnabled is true (the default)"
     required_evidence:
-      - {kind: code, location: "M/executor/CachingExecutor.java#L41-L46"}
-      - {kind: code, location: "M/executor/CachingExecutor.java#L59-L61"}
-      - {kind: code, location: "M/session/Configuration.java#L745-L746"}
+      - { kind: code, location: "M/executor/CachingExecutor.java#L41-L46" }
+      - { kind: code, location: "M/executor/CachingExecutor.java#L59-L61" }
+      - { kind: code, location: "M/session/Configuration.java#L745-L746" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: medium
 
   - id: M04
@@ -65,13 +65,13 @@ questions:
       - "Queries read from it; updates, commits and rollbacks clear it"
       - "localCacheScope defaults to SESSION; with STATEMENT the cache is cleared after each query"
     required_evidence:
-      - {kind: code, location: "M/executor/BaseExecutor.java#L59"}
-      - {kind: code, location: "M/executor/BaseExecutor.java#L69"}
-      - {kind: code, location: "M/executor/BaseExecutor.java#L170-L172"}
-      - {kind: code, location: "M/session/Configuration.java#L125"}
-      - {kind: code, location: "M/session/LocalCacheScope.java#L22"}
+      - { kind: code, location: "M/executor/BaseExecutor.java#L59" }
+      - { kind: code, location: "M/executor/BaseExecutor.java#L69" }
+      - { kind: code, location: "M/executor/BaseExecutor.java#L170-L172" }
+      - { kind: code, location: "M/session/Configuration.java#L125" }
+      - { kind: code, location: "M/session/LocalCacheScope.java#L22" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: medium
 
   - id: M05
@@ -83,14 +83,14 @@ questions:
       - "Plugin.wrap builds a JDK proxy for targets whose interfaces match the signature map; it fails without @Intercepts"
       - "InterceptorChain.pluginAll is applied to Executor, ParameterHandler, ResultSetHandler and StatementHandler"
     required_evidence:
-      - {kind: code, location: "M/plugin/Interceptor.java#L25-L31"}
-      - {kind: code, location: "M/plugin/Plugin.java#L43-L48"}
-      - {kind: code, location: "M/plugin/Plugin.java#L66-L71"}
-      - {kind: code, location: "M/plugin/InterceptorChain.java#L28"}
-      - {kind: code, location: "M/session/Configuration.java#L714-L728"}
-      - {kind: code, location: "M/session/Configuration.java#L748"}
+      - { kind: code, location: "M/plugin/Interceptor.java#L25-L31" }
+      - { kind: code, location: "M/plugin/Plugin.java#L43-L48" }
+      - { kind: code, location: "M/plugin/Plugin.java#L66-L71" }
+      - { kind: code, location: "M/plugin/InterceptorChain.java#L28" }
+      - { kind: code, location: "M/session/Configuration.java#L714-L728" }
+      - { kind: code, location: "M/session/Configuration.java#L748" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: hard
 
   - id: M06
@@ -99,11 +99,11 @@ questions:
     key_points:
       - "Decorators around PerpetualCache: Blocking, Fifo, Logging, Lru, Scheduled, Serialized, Soft, Synchronized, Transactional, Weak"
     required_evidence:
-      - {kind: code, location: "M/cache/impl/PerpetualCache.java#L27"}
-      - {kind: code, location: "M/cache/decorators/LruCache.java#L28"}
-      - {kind: code, location: "M/cache/decorators/TransactionalCache.java#L38"}
+      - { kind: code, location: "M/cache/impl/PerpetualCache.java#L27" }
+      - { kind: code, location: "M/cache/decorators/LruCache.java#L28" }
+      - { kind: code, location: "M/cache/decorators/TransactionalCache.java#L38" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: easy
 
   - id: M07
@@ -114,10 +114,10 @@ questions:
       - "Near miss: BlockingCache's Javadoc mentions EhCache only as the design it imitates"
       - "Distributed caches can be plugged in through the Cache interface, but none is included here"
     required_evidence:
-      - {kind: code, location: "M/cache/decorators/BlockingCache.java#L29"}
-      - {kind: code, location: "M/cache/impl/PerpetualCache.java#L27"}
+      - { kind: code, location: "M/cache/decorators/BlockingCache.java#L29" }
+      - { kind: code, location: "M/cache/impl/PerpetualCache.java#L27" }
     expect_not_found: true
-    must_not_say: ["RedisCache is included"]
+    must_not_say: [ "RedisCache is included" ]
     difficulty: medium
 
   - id: M08
@@ -128,11 +128,11 @@ questions:
       - "ognl, javassist and cglib are optional"
       - "Logging libraries (slf4j-api, commons-logging, log4j-api, reload4j) are optional"
     required_evidence:
-      - {kind: code, location: "pom.xml#L67"}
-      - {kind: code, location: "pom.xml#L114-L130"}
-      - {kind: code, location: "pom.xml#L286-L306"}
+      - { kind: code, location: "pom.xml#L67" }
+      - { kind: code, location: "pom.xml#L114-L130" }
+      - { kind: code, location: "pom.xml#L286-L306" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: easy
 
   - id: M09
@@ -142,10 +142,10 @@ questions:
       - "LogFactory tries implementations in order: SLF4J, Commons Logging, Log4j2, Log4j, JDK logging, then no logging"
       - "The first one that loads wins"
     required_evidence:
-      - {kind: code, location: "M/logging/LogFactory.java#L35-L42"}
-      - {kind: code, location: "M/logging/LogFactory.java#L96"}
+      - { kind: code, location: "M/logging/LogFactory.java#L35-L42" }
+      - { kind: code, location: "M/logging/LogFactory.java#L96" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: easy
 
   - id: M10
@@ -155,11 +155,11 @@ questions:
       - "MapperAnnotationBuilder, created and run from MapperRegistry.addMapper"
       - "Options such as useGeneratedKeys are read there to choose the key generator"
     required_evidence:
-      - {kind: code, location: "M/builder/annotation/MapperAnnotationBuilder.java#L104"}
-      - {kind: code, location: "M/binding/MapperRegistry.java#L60-L72"}
-      - {kind: code, location: "M/builder/annotation/MapperAnnotationBuilder.java#L361"}
+      - { kind: code, location: "M/builder/annotation/MapperAnnotationBuilder.java#L104" }
+      - { kind: code, location: "M/binding/MapperRegistry.java#L60-L72" }
+      - { kind: code, location: "M/builder/annotation/MapperAnnotationBuilder.java#L361" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: medium
 
   - id: M11
@@ -168,10 +168,10 @@ questions:
     key_points:
       - "DefaultSqlSessionFactory when opening a session (from a data source and from a connection)"
     required_evidence:
-      - {kind: code, location: "M/session/defaults/DefaultSqlSessionFactory.java#L101"}
-      - {kind: code, location: "M/session/defaults/DefaultSqlSessionFactory.java#L124"}
+      - { kind: code, location: "M/session/defaults/DefaultSqlSessionFactory.java#L101" }
+      - { kind: code, location: "M/session/defaults/DefaultSqlSessionFactory.java#L124" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: easy
 
   - id: M12
@@ -181,10 +181,10 @@ questions:
       - "Set the cacheEnabled setting to false (XML settings, default true)"
       - "Then newExecutor does not wrap executors in CachingExecutor"
     required_evidence:
-      - {kind: code, location: "M/builder/xml/XMLConfigBuilder.java#L266"}
-      - {kind: code, location: "M/session/Configuration.java#L745-L746"}
+      - { kind: code, location: "M/builder/xml/XMLConfigBuilder.java#L266" }
+      - { kind: code, location: "M/session/Configuration.java#L745-L746" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: easy
 
   - id: M13
@@ -193,9 +193,9 @@ questions:
     key_points:
       - "TypeHandlerRegistry.register overloads by Java type, JDBC type, or both"
     required_evidence:
-      - {kind: code, location: "M/type/TypeHandlerRegistry.java#L372-L403"}
+      - { kind: code, location: "M/type/TypeHandlerRegistry.java#L372-L403" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: medium
 
   - id: M14
@@ -204,10 +204,10 @@ questions:
     key_points:
       - "No: mappers are implemented at run time by JDK dynamic proxies (MapperProxyFactory, MapperProxy)"
     required_evidence:
-      - {kind: code, location: "M/binding/MapperProxyFactory.java#L47"}
-      - {kind: code, location: "M/binding/MapperProxy.java#L35"}
+      - { kind: code, location: "M/binding/MapperProxyFactory.java#L47" }
+      - { kind: code, location: "M/binding/MapperProxy.java#L35" }
     expect_not_found: true
-    must_not_say: ["annotation processor generates"]
+    must_not_say: [ "annotation processor generates" ]
     difficulty: medium
 
   - id: M15
@@ -217,8 +217,8 @@ questions:
       - "build(Reader/InputStream, ...) parses XML with XMLConfigBuilder into a Configuration"
       - "and returns a DefaultSqlSessionFactory"
     required_evidence:
-      - {kind: code, location: "M/session/SqlSessionFactoryBuilder.java#L49-L50"}
-      - {kind: code, location: "M/session/SqlSessionFactoryBuilder.java#L95-L96"}
+      - { kind: code, location: "M/session/SqlSessionFactoryBuilder.java#L49-L50" }
+      - { kind: code, location: "M/session/SqlSessionFactoryBuilder.java#L95-L96" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: easy

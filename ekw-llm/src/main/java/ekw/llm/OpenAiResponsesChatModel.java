@@ -29,7 +29,9 @@ public final class OpenAiResponsesChatModel implements Models.ChatModel {
         throw Todo.chapter(7, "OpenAiResponsesChatModel.chat");
     }
 
-    /** OpenAI cannot count tokens before a call: estimate characters / 3, rounded up, and mark it inexact. */
+    /**
+     * OpenAI cannot count tokens before a call: estimate characters / 3, rounded up, and mark it inexact.
+     */
     @Override
     public TokenEstimate estimate(ChatRequest request) {
         throw Todo.chapter(7, "OpenAiResponsesChatModel.estimate");

@@ -5,7 +5,6 @@ Template (sections in this order; sections marked * are required):
 
 {{type_specific_instructions}}
 
-
 Pages you may link to (title, path, description):
 {{linkable_pages}}
 

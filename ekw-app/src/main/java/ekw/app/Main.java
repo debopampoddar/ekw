@@ -10,7 +10,9 @@ import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.util.concurrent.Callable;
 
-/** The ekw command. Each subcommand is a thin shell over the services in the other modules. */
+/**
+ * The ekw command. Each subcommand is a thin shell over the services in the other modules.
+ */
 @Command(name = "ekw", mixinStandardHelpOptions = true, version = "ekw 0.1.0-SNAPSHOT (learning skeleton)",
         description = "Engineering knowledge wiki.",
         subcommands = {Main.PingModel.class, Main.Spike.class})
@@ -26,7 +28,9 @@ public final class Main implements Callable<Integer> {
         return 0;
     }
 
-    /** Chapter 7: your first paid model call, capped at one cent by the budget guard. */
+    /**
+     * Chapter 7: your first paid model call, capped at one cent by the budget guard.
+     */
     @Command(name = "ping-model", description = "Send one tiny request to a model and print the reply, tokens and cost.")
     static final class PingModel implements Callable<Integer> {
         @Option(names = "--model", defaultValue = "claude-haiku-5-5", description = "Model id (default: ${DEFAULT-VALUE}).")
@@ -41,7 +45,9 @@ public final class Main implements Callable<Integer> {
         }
     }
 
-    /** Chapter 12: spike S1. */
+    /**
+     * Chapter 12: spike S1.
+     */
     @Command(name = "spike", description = "Spike S1: estimate | run | summarize.")
     static final class Spike implements Callable<Integer> {
         @Parameters(index = "0", description = "estimate, run or summarize")

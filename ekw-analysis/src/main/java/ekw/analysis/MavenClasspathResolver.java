@@ -12,7 +12,8 @@ import java.util.Map;
  *
  * <p>Chapter 4 of the development guide.
  */
-public final class MavenClasspathResolver implements Facts.ClasspathResolver, AutoCloseable {
+public final class MavenClasspathResolver
+        implements Facts.ClasspathResolver, AutoCloseable {
 
     /**
      * @param localRepository the jar cache, e.g. {@code <kb>/.cache/m2}
@@ -22,12 +23,16 @@ public final class MavenClasspathResolver implements Facts.ClasspathResolver, Au
         // TODO (chapter 4): create the repository system and session; index the repository's POMs.
     }
 
-    /** groupId:artifactId -> pom.xml for every POM in the checkout (build output and test resources excluded). */
+    /**
+     * groupId:artifactId -> pom.xml for every POM in the checkout (build output and test resources excluded).
+     */
     public static Map<String, Path> reactorPoms(Path repositoryRoot) {
         throw Todo.chapter(4, "MavenClasspathResolver.reactorPoms");
     }
 
-    /** The effective model of a pom.xml. */
+    /**
+     * The effective model of a pom.xml.
+     */
     public Model effectiveModel(Path pom) {
         throw Todo.chapter(4, "MavenClasspathResolver.effectiveModel");
     }

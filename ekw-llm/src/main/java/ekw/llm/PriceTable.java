@@ -16,12 +16,15 @@ import java.util.Optional;
  */
 public record PriceTable(Map<String, Entry> byModelId) {
 
-    public record Surcharge(long aboveInputTokens, BigDecimal inputMultiplier, BigDecimal outputMultiplier) {}
+    public record Surcharge ( long aboveInputTokens, BigDecimal
+    inputMultiplier, BigDecimal outputMultiplier){
+    }
 
-    public record Entry(Prices prices, Optional<Surcharge> longContext) {}
+    public record Entry (Prices prices, Optional < Surcharge > longContext){
+    }
 
     /** The entry for a model id; an unknown id is an error (never price a call at zero by accident). */
-    public Entry entry(String modelId) {
+    public Entry entry (String modelId){
         throw Todo.chapter(6, "PriceTable.entry");
     }
 
@@ -29,12 +32,13 @@ public record PriceTable(Map<String, Entry> byModelId) {
      * The most a call can cost: every input token at the dearer of the input and cache-write price, every allowed
      * output token at the output price, surcharges applied when the input passes the threshold.
      */
-    public BigDecimal worstCase(String modelId, long inputTokens, long maxOutputTokens) {
+    public BigDecimal worstCase (String modelId,long inputTokens,
+    long maxOutputTokens){
         throw Todo.chapter(6, "PriceTable.worstCase");
     }
 
     /** What a call cost, from its reported usage (input, cache reads, cache writes and output priced separately). */
-    public BigDecimal actual(String modelId, Usage usage) {
+    public BigDecimal actual (String modelId, Usage usage){
         throw Todo.chapter(6, "PriceTable.actual");
     }
 }

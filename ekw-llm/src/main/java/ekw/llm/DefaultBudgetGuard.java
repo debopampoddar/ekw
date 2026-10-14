@@ -17,7 +17,9 @@ import java.util.Map;
  */
 public final class DefaultBudgetGuard implements Models.BudgetGuard {
 
-    /** @param fallbackModelId model id -> the model that serves the call if the first one refuses */
+    /**
+     * @param fallbackModelId model id -> the model that serves the call if the first one refuses
+     */
     public DefaultBudgetGuard(BigDecimal limitUsd, PriceTable prices, Map<String, String> fallbackModelId) {
         // TODO (chapter 6): keep the arguments.
     }
@@ -37,7 +39,18 @@ public final class DefaultBudgetGuard implements Models.BudgetGuard {
         throw Todo.chapter(6, "DefaultBudgetGuard.release");
     }
 
-    @Override public BigDecimal limitUsd() { throw Todo.chapter(6, "DefaultBudgetGuard.limitUsd"); }
-    @Override public BigDecimal spentUsd() { throw Todo.chapter(6, "DefaultBudgetGuard.spentUsd"); }
-    @Override public BigDecimal reservedUsd() { throw Todo.chapter(6, "DefaultBudgetGuard.reservedUsd"); }
+    @Override
+    public BigDecimal limitUsd() {
+        throw Todo.chapter(6, "DefaultBudgetGuard.limitUsd");
+    }
+
+    @Override
+    public BigDecimal spentUsd() {
+        throw Todo.chapter(6, "DefaultBudgetGuard.spentUsd");
+    }
+
+    @Override
+    public BigDecimal reservedUsd() {
+        throw Todo.chapter(6, "DefaultBudgetGuard.reservedUsd");
+    }
 }

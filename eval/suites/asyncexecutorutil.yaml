@@ -17,11 +17,11 @@ questions:
       - "Detects missing and circular dependencies"
       - "In-process library: everything runs in one JVM on virtual threads"
     required_evidence:
-      - {kind: code, location: "README.md#L5", why: "stated purpose"}
-      - {kind: code, location: "P/TaskExecutor.java#L24-L27", why: "class Javadoc"}
-      - {kind: code, location: "P/TaskExecutor.java#L124", why: "virtual-thread executor"}
+      - { kind: code, location: "README.md#L5", why: "stated purpose" }
+      - { kind: code, location: "P/TaskExecutor.java#L24-L27", why: "class Javadoc" }
+      - { kind: code, location: "P/TaskExecutor.java#L124", why: "virtual-thread executor" }
     expect_not_found: false
-    must_not_say: ["distributed", "runs across machines"]
+    must_not_say: [ "distributed", "runs across machines" ]
     difficulty: easy
 
   - id: A02
@@ -34,12 +34,12 @@ questions:
       - "RetryPolicy is abstract with nested None, Linear, Nonlinear"
       - "ExecutionResult records successes, failures and execution order"
     required_evidence:
-      - {kind: code, location: "P/Task.java#L13-L19"}
-      - {kind: code, location: "P/RetryPolicy.java#L14"}
-      - {kind: code, location: "P/ExecutionResult.java#L14-L16"}
-      - {kind: code, location: "P/TaskExecutor.java#L28-L32"}
+      - { kind: code, location: "P/Task.java#L13-L19" }
+      - { kind: code, location: "P/RetryPolicy.java#L14" }
+      - { kind: code, location: "P/ExecutionResult.java#L14-L16" }
+      - { kind: code, location: "P/TaskExecutor.java#L28-L32" }
     expect_not_found: false
-    must_not_say: ["asyncexecutor.util"]
+    must_not_say: [ "asyncexecutor.util" ]
     difficulty: easy
 
   - id: A03
@@ -52,13 +52,13 @@ questions:
       - "Immutable records for Task and ExecutionResult (with mutable collections inside)"
       - "Callbacks and fallback; dependency graph executed via topological sort and CompletableFuture composition"
     required_evidence:
-      - {kind: code, location: "P/Task.java#L36-L91"}
-      - {kind: code, location: "P/TaskExecutor.java#L41-L81"}
-      - {kind: code, location: "P/RetryPolicy.java#L39"}
-      - {kind: code, location: "P/RetryPolicy.java#L132-L134"}
-      - {kind: code, location: "P/Task.java#L21-L23"}
+      - { kind: code, location: "P/Task.java#L36-L91" }
+      - { kind: code, location: "P/TaskExecutor.java#L41-L81" }
+      - { kind: code, location: "P/RetryPolicy.java#L39" }
+      - { kind: code, location: "P/RetryPolicy.java#L132-L134" }
+      - { kind: code, location: "P/Task.java#L21-L23" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: medium
 
   - id: A04
@@ -73,13 +73,13 @@ questions:
       - "executeTask runs the task's retry policy, records the result and calls onSuccess"
       - "All futures are joined; the global success handler runs if no fail-fast failure occurred; the executor is shut down"
     required_evidence:
-      - {kind: code, location: "P/TaskExecutor.java#L89-L104"}
-      - {kind: code, location: "P/TaskExecutor.java#L123-L162"}
-      - {kind: code, location: "P/TaskExecutor.java#L173-L190"}
-      - {kind: code, location: "P/TaskExecutor.java#L215-L228"}
-      - {kind: code, location: "P/TaskExecutor.java#L359-L404"}
+      - { kind: code, location: "P/TaskExecutor.java#L89-L104" }
+      - { kind: code, location: "P/TaskExecutor.java#L123-L162" }
+      - { kind: code, location: "P/TaskExecutor.java#L173-L190" }
+      - { kind: code, location: "P/TaskExecutor.java#L215-L228" }
+      - { kind: code, location: "P/TaskExecutor.java#L359-L404" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: hard
 
   - id: A05
@@ -91,11 +91,11 @@ questions:
       - "Kahn's topological sort checks again and throws \"Cycle detected despite validation\""
       - "Covered by test circularDependencyThrowsException"
     required_evidence:
-      - {kind: code, location: "P/TaskExecutor.java#L310-L341"}
-      - {kind: code, location: "P/TaskExecutor.java#L399-L401"}
-      - {kind: code, location: "T/TaskExecutorTest.java#L424-L440"}
+      - { kind: code, location: "P/TaskExecutor.java#L310-L341" }
+      - { kind: code, location: "P/TaskExecutor.java#L399-L401" }
+      - { kind: code, location: "T/TaskExecutorTest.java#L424-L440" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: medium
 
   - id: A06
@@ -107,11 +107,11 @@ questions:
       - "The test taskDependencyOnFailedTask asserts that the dependent task has a result"
       - "checkDependencies never sees an exception on this path"
     required_evidence:
-      - {kind: code, location: "P/TaskExecutor.java#L239-L258"}
-      - {kind: code, location: "P/TaskExecutor.java#L198-L205"}
-      - {kind: code, location: "T/TaskExecutorTest.java#L276-L293"}
+      - { kind: code, location: "P/TaskExecutor.java#L239-L258" }
+      - { kind: code, location: "P/TaskExecutor.java#L198-L205" }
+      - { kind: code, location: "T/TaskExecutorTest.java#L276-L293" }
     expect_not_found: false
-    must_not_say: ["dependents are skipped"]
+    must_not_say: [ "dependents are skipped" ]
     difficulty: hard
 
   - id: A07
@@ -124,12 +124,12 @@ questions:
       - "Tasks that start afterwards see the flag and throw CancellationException"
       - "cancel(true) on a CompletableFuture does not interrupt running work; shutdownNow is what interrupts threads"
     required_evidence:
-      - {kind: code, location: "P/TaskExecutor.java#L135-L151"}
-      - {kind: code, location: "P/TaskExecutor.java#L215-L218"}
-      - {kind: code, location: "P/TaskExecutor.java#L254-L256"}
-      - {kind: code, location: "P/TaskExecutor.java#L264-L270"}
+      - { kind: code, location: "P/TaskExecutor.java#L135-L151" }
+      - { kind: code, location: "P/TaskExecutor.java#L215-L218" }
+      - { kind: code, location: "P/TaskExecutor.java#L254-L256" }
+      - { kind: code, location: "P/TaskExecutor.java#L264-L270" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: hard
 
   - id: A08
@@ -140,12 +140,12 @@ questions:
       - "new TaskExecutor.Builder().addTask(t1).addTask(t2).build().execute() returns ExecutionResult"
       - "result.getResult(\"task1\") returns an Optional"
     required_evidence:
-      - {kind: code, location: "P/Task.java#L47-L54"}
-      - {kind: code, location: "P/Task.java#L66-L69"}
-      - {kind: code, location: "P/TaskExecutor.java#L48-L54"}
-      - {kind: code, location: "P/ExecutionResult.java#L32-L34"}
+      - { kind: code, location: "P/Task.java#L47-L54" }
+      - { kind: code, location: "P/Task.java#L66-L69" }
+      - { kind: code, location: "P/TaskExecutor.java#L48-L54" }
+      - { kind: code, location: "P/ExecutionResult.java#L32-L34" }
     expect_not_found: false
-    must_not_say: ["getResults("]
+    must_not_say: [ "getResults(" ]
     difficulty: easy
 
   - id: A09
@@ -157,11 +157,11 @@ questions:
       - "The predicate decides which exceptions are retried"
       - "The README form does not compile: no retry(...) method and no RetryPolicy.linear factory"
     required_evidence:
-      - {kind: code, location: "P/RetryPolicy.java#L71-L96"}
-      - {kind: code, location: "P/Task.java#L71-L74"}
-      - {kind: code, location: "README.md#L91"}
+      - { kind: code, location: "P/RetryPolicy.java#L71-L96" }
+      - { kind: code, location: "P/Task.java#L71-L74" }
+      - { kind: code, location: "README.md#L91" }
     expect_not_found: false
-    must_not_say: ["RetryPolicy.linear(3"]
+    must_not_say: [ "RetryPolicy.linear(3" ]
     difficulty: medium
 
   - id: A10
@@ -172,11 +172,11 @@ questions:
       - "On failure handleFailure calls the fallback; on success it records the fallback value as the task's result and calls onSuccess"
       - "If the fallback throws, the fallback's exception is recorded as the failure and onFailure is called"
     required_evidence:
-      - {kind: code, location: "P/Task.java#L76-L79"}
-      - {kind: code, location: "P/TaskExecutor.java#L239-L253"}
-      - {kind: code, location: "T/TaskExecutorTest.java#L471-L486"}
+      - { kind: code, location: "P/Task.java#L76-L79" }
+      - { kind: code, location: "P/TaskExecutor.java#L239-L253" }
+      - { kind: code, location: "T/TaskExecutorTest.java#L471-L486" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: medium
 
   - id: A11
@@ -188,11 +188,11 @@ questions:
       - "With fail-fast off, a failed task does not trigger the global failure handler on the asynchronous path, and the success handler still runs (inconsistent with the synchronous path)"
       - "Synchronous path (single task): triggerGlobalHandlers chooses success or failure from the recorded result"
     required_evidence:
-      - {kind: code, location: "P/TaskExecutor.java#L61-L69"}
-      - {kind: code, location: "P/TaskExecutor.java#L135-L158"}
-      - {kind: code, location: "P/TaskExecutor.java#L344-L351"}
+      - { kind: code, location: "P/TaskExecutor.java#L61-L69" }
+      - { kind: code, location: "P/TaskExecutor.java#L135-L158" }
+      - { kind: code, location: "P/TaskExecutor.java#L344-L351" }
     expect_not_found: false
-    must_not_say: [".onFailure((task, exception)"]
+    must_not_say: [ ".onFailure((task, exception)" ]
     difficulty: hard
 
   - id: A12
@@ -203,11 +203,11 @@ questions:
       - "Implement <T> T execute(Callable<T> action)"
       - "Attach it with Task.Builder.retryPolicy(...)"
     required_evidence:
-      - {kind: code, location: "P/RetryPolicy.java#L24-L31"}
-      - {kind: code, location: "P/RetryPolicy.java#L39"}
-      - {kind: code, location: "P/Task.java#L71-L74"}
+      - { kind: code, location: "P/RetryPolicy.java#L24-L31" }
+      - { kind: code, location: "P/RetryPolicy.java#L39" }
+      - { kind: code, location: "P/Task.java#L71-L74" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: easy
 
   - id: A13
@@ -218,10 +218,10 @@ questions:
       - "TaskExecutor.Builder has no executor setter"
       - "Supporting it would need a builder option and passing the executor to executeAsynchronously"
     required_evidence:
-      - {kind: code, location: "P/TaskExecutor.java#L124"}
-      - {kind: code, location: "P/TaskExecutor.java#L41-L81"}
+      - { kind: code, location: "P/TaskExecutor.java#L124" }
+      - { kind: code, location: "P/TaskExecutor.java#L41-L81" }
     expect_not_found: true
-    must_not_say: ["executor(", "withExecutor"]
+    must_not_say: [ "executor(", "withExecutor" ]
     difficulty: medium
 
   - id: A14
@@ -233,11 +233,11 @@ questions:
       - "Only dependency: JUnit Jupiter 5.9.2 in test scope; no runtime dependencies"
       - "maven-compiler-plugin 3.10.1, maven-surefire-plugin 3.5.2"
     required_evidence:
-      - {kind: code, location: "pom.xml#L13"}
-      - {kind: code, location: "pom.xml#L15-L25"}
-      - {kind: code, location: "README.md#L19-L20"}
+      - { kind: code, location: "pom.xml#L13" }
+      - { kind: code, location: "pom.xml#L15-L25" }
+      - { kind: code, location: "README.md#L19-L20" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: easy
 
   - id: A15
@@ -247,10 +247,10 @@ questions:
       - "It uses virtual threads (Executors.newVirtualThreadPerTaskExecutor), a Java 21 API"
       - "No document states the reason; the answer is inferred from the code and must say so"
     required_evidence:
-      - {kind: code, location: "pom.xml#L13"}
-      - {kind: code, location: "P/TaskExecutor.java#L124"}
+      - { kind: code, location: "pom.xml#L13" }
+      - { kind: code, location: "P/TaskExecutor.java#L124" }
     expect_not_found: false
-    must_not_say: ["the README explains"]
+    must_not_say: [ "the README explains" ]
     difficulty: medium
 
   - id: A16
@@ -260,11 +260,11 @@ questions:
       - "No: the README says to extend the Task class and implement execute"
       - "Task is a record and cannot be extended; work is passed as a Callable via action(...)"
     required_evidence:
-      - {kind: code, location: "README.md#L38"}
-      - {kind: code, location: "P/Task.java#L13-L19"}
-      - {kind: code, location: "P/Task.java#L51-L54"}
+      - { kind: code, location: "README.md#L38" }
+      - { kind: code, location: "P/Task.java#L13-L19" }
+      - { kind: code, location: "P/Task.java#L51-L54" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: easy
 
   - id: A17
@@ -275,11 +275,11 @@ questions:
       - "The global handler is globalFailureHandler(Consumer<Exception>)"
       - "Per-task failure callbacks exist as Task.Builder.onFailure(Consumer<Exception>)"
     required_evidence:
-      - {kind: code, location: "README.md#L74-L78"}
-      - {kind: code, location: "P/TaskExecutor.java#L66-L69"}
-      - {kind: code, location: "P/Task.java#L61-L64"}
+      - { kind: code, location: "README.md#L74-L78" }
+      - { kind: code, location: "P/TaskExecutor.java#L66-L69" }
+      - { kind: code, location: "P/Task.java#L61-L64" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: medium
 
   - id: A18
@@ -292,13 +292,13 @@ questions:
       - "L91: .retry(RetryPolicy.linear(...)) (use retryPolicy(new RetryPolicy.Linear(...)))"
       - "L96: an ExampleUsage class (does not exist)"
     required_evidence:
-      - {kind: code, location: "README.md#L38"}
-      - {kind: code, location: "README.md#L62"}
-      - {kind: code, location: "README.md#L77"}
-      - {kind: code, location: "README.md#L91"}
-      - {kind: code, location: "README.md#L96"}
+      - { kind: code, location: "README.md#L38" }
+      - { kind: code, location: "README.md#L62" }
+      - { kind: code, location: "README.md#L77" }
+      - { kind: code, location: "README.md#L91" }
+      - { kind: code, location: "README.md#L96" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: hard
 
   - id: A19
@@ -309,11 +309,11 @@ questions:
       - "validateDependencies throws IllegalArgumentException(\"Missing dependency: ...\")"
       - "The test missingDependencyThrowsException expects IllegalArgumentException"
     required_evidence:
-      - {kind: code, location: "P/TaskExecutor.java#L84-L88"}
-      - {kind: code, location: "P/TaskExecutor.java#L289-L303"}
-      - {kind: code, location: "T/TaskExecutorTest.java#L606-L631"}
+      - { kind: code, location: "P/TaskExecutor.java#L84-L88" }
+      - { kind: code, location: "P/TaskExecutor.java#L289-L303" }
+      - { kind: code, location: "T/TaskExecutorTest.java#L606-L631" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: hard
 
   - id: A20
@@ -323,10 +323,10 @@ questions:
       - "Not supported: tasks run in one JVM on an in-process virtual-thread executor"
       - "No networking, serialization or messaging code or dependency"
     required_evidence:
-      - {kind: code, location: "P/TaskExecutor.java#L124"}
-      - {kind: code, location: "pom.xml#L18-L26"}
+      - { kind: code, location: "P/TaskExecutor.java#L124" }
+      - { kind: code, location: "pom.xml#L18-L26" }
     expect_not_found: true
-    must_not_say: ["supports distributed", "cluster mode"]
+    must_not_say: [ "supports distributed", "cluster mode" ]
     difficulty: easy
 
   - id: A21
@@ -335,10 +335,10 @@ questions:
     key_points:
       - "No: Task has no timeout component and the executor applies no timeout (no orTimeout, no timed join)"
     required_evidence:
-      - {kind: code, location: "P/Task.java#L13-L19"}
-      - {kind: code, location: "P/TaskExecutor.java#L155"}
+      - { kind: code, location: "P/Task.java#L13-L19" }
+      - { kind: code, location: "P/TaskExecutor.java#L155" }
     expect_not_found: true
-    must_not_say: ["timeout(", "orTimeout is used"]
+    must_not_say: [ "timeout(", "orTimeout is used" ]
     difficulty: medium
 
   - id: A22
@@ -347,10 +347,10 @@ questions:
     key_points:
       - "No: there is no priority in Task, and ordering comes only from dependencies (topological order)"
     required_evidence:
-      - {kind: code, location: "P/Task.java#L13-L19"}
-      - {kind: code, location: "P/TaskExecutor.java#L359-L404"}
+      - { kind: code, location: "P/Task.java#L13-L19" }
+      - { kind: code, location: "P/TaskExecutor.java#L359-L404" }
     expect_not_found: true
-    must_not_say: ["priority("]
+    must_not_say: [ "priority(" ]
     difficulty: easy
 
   - id: A23
@@ -359,10 +359,10 @@ questions:
     key_points:
       - "Yes: validateNoCycles runs in execute() before any task starts and throws IllegalStateException"
     required_evidence:
-      - {kind: code, location: "P/TaskExecutor.java#L90-L91"}
-      - {kind: code, location: "P/TaskExecutor.java#L310-L322"}
+      - { kind: code, location: "P/TaskExecutor.java#L90-L91" }
+      - { kind: code, location: "P/TaskExecutor.java#L310-L322" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: easy
 
   - id: A24
@@ -371,9 +371,9 @@ questions:
     key_points:
       - "TaskExecutor.topologicalSort, Kahn's algorithm (in-degree counting with a queue)"
     required_evidence:
-      - {kind: code, location: "P/TaskExecutor.java#L359-L404"}
+      - { kind: code, location: "P/TaskExecutor.java#L359-L404" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: easy
 
   - id: A25
@@ -383,12 +383,12 @@ questions:
       - "ExecutionResult.recordSuccess and recordFailure, which also append to executionOrder"
       - "Called from executeTask (success), handleFailure (fallback success and failure)"
     required_evidence:
-      - {kind: code, location: "P/ExecutionResult.java#L22-L30"}
-      - {kind: code, location: "P/TaskExecutor.java#L222"}
-      - {kind: code, location: "P/TaskExecutor.java#L243"}
-      - {kind: code, location: "P/TaskExecutor.java#L251"}
+      - { kind: code, location: "P/ExecutionResult.java#L22-L30" }
+      - { kind: code, location: "P/TaskExecutor.java#L222" }
+      - { kind: code, location: "P/TaskExecutor.java#L243" }
+      - { kind: code, location: "P/TaskExecutor.java#L251" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: easy
 
   - id: A26
@@ -399,9 +399,9 @@ questions:
       - "It dispatches virtually to None, Linear or Nonlinear"
       - "Tests also call policies directly (RetryPolicyTest)"
     required_evidence:
-      - {kind: code, location: "P/TaskExecutor.java#L221"}
+      - { kind: code, location: "P/TaskExecutor.java#L221" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: easy
 
   - id: A27
@@ -412,10 +412,10 @@ questions:
       - "recordSuccess and recordFailure mutate them from tasks running on concurrent virtual threads without synchronization"
       - "This is a data race (behavior not executed; inferred from code)"
     required_evidence:
-      - {kind: code, location: "P/ExecutionResult.java#L18-L30"}
-      - {kind: code, location: "P/TaskExecutor.java#L186-L189"}
+      - { kind: code, location: "P/ExecutionResult.java#L18-L30" }
+      - { kind: code, location: "P/TaskExecutor.java#L186-L189" }
     expect_not_found: false
-    must_not_say: ["thread-safe"]
+    must_not_say: [ "thread-safe" ]
     difficulty: hard
 
   - id: A28
@@ -426,10 +426,10 @@ questions:
       - "Reuse continues the sequence (longer delays) and concurrent use is not thread-safe"
       - "Delays are baseInterval x 1, 2, 3, 5, 8 ...; a test comment says 1,1,2, which is inaccurate"
     required_evidence:
-      - {kind: code, location: "P/RetryPolicy.java#L101-L130"}
-      - {kind: code, location: "T/RetryPolicyTest.java#L85"}
+      - { kind: code, location: "P/RetryPolicy.java#L101-L130" }
+      - { kind: code, location: "T/RetryPolicyTest.java#L85" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: hard
 
   - id: A29
@@ -440,11 +440,11 @@ questions:
       - "Global handlers are then chosen from the result (triggerGlobalHandlers)"
       - "With fail-fast on, a failure's CompletionException propagates to the caller, because only the asynchronous path is wrapped in try/catch"
     required_evidence:
-      - {kind: code, location: "P/TaskExecutor.java#L93-L102"}
-      - {kind: code, location: "P/TaskExecutor.java#L111-L116"}
-      - {kind: code, location: "P/TaskExecutor.java#L344-L351"}
+      - { kind: code, location: "P/TaskExecutor.java#L93-L102" }
+      - { kind: code, location: "P/TaskExecutor.java#L111-L116" }
+      - { kind: code, location: "P/TaskExecutor.java#L344-L351" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: medium
 
   - id: A30
@@ -454,8 +454,8 @@ questions:
       - "Yes: execute() catches RuntimeException from executeAsynchronously and ignores it (empty catch body)"
       - "Validation exceptions are thrown before that try block and do reach the caller"
     required_evidence:
-      - {kind: code, location: "P/TaskExecutor.java#L96-L101"}
-      - {kind: code, location: "P/TaskExecutor.java#L90-L91"}
+      - { kind: code, location: "P/TaskExecutor.java#L96-L101" }
+      - { kind: code, location: "P/TaskExecutor.java#L90-L91" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: medium

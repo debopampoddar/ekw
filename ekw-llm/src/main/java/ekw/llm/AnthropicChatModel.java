@@ -29,7 +29,9 @@ public final class AnthropicChatModel implements Models.ChatModel {
         throw Todo.chapter(7, "AnthropicChatModel.chat");
     }
 
-    /** Exact input-token count from the free count_tokens endpoint. */
+    /**
+     * Exact input-token count from the free count_tokens endpoint.
+     */
     @Override
     public TokenEstimate estimate(ChatRequest request) {
         throw Todo.chapter(7, "AnthropicChatModel.estimate");

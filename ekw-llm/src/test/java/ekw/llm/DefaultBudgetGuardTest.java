@@ -44,7 +44,9 @@ class DefaultBudgetGuardTest {
                 .isEqualByComparingTo("1.65");              // 300K x 2.50 x 2 + 10K x 10 x 1.5
     }
 
-    /** Property: with any mix of calls, spending never passes the limit when usage stays within the reservation. */
+    /**
+     * Property: with any mix of calls, spending never passes the limit when usage stays within the reservation.
+     */
     @Test
     void neverPassesTheLimit() {
         Random random = new Random(42);
@@ -60,7 +62,10 @@ class DefaultBudgetGuardTest {
                 } catch (BudgetExceeded e) {
                     continue;
                 }
-                if (random.nextInt(10) == 0) { guard.release(r); continue; }
+                if (random.nextInt(10) == 0) {
+                    guard.release(r);
+                    continue;
+                }
                 long read = random.nextLong(in + 1);
                 guard.settle(r, new Usage(in - read, random.nextInt(maxOut + 1), read, 0), SONNET);
             }

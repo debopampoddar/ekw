@@ -13,9 +13,12 @@ import java.nio.file.Path;
  */
 public final class FactsDatabase {
 
-    private FactsDatabase() {}
+    private FactsDatabase() {
+    }
 
-    /** Creates the folder if needed, opens SQLite (foreign keys on, WAL journal), migrates, returns the database. */
+    /**
+     * Creates the folder if needed, opens SQLite (foreign keys on, WAL journal), migrates, returns the database.
+     */
     public static FactsDatabase open(Path file) {
         throw Todo.chapter(5, "FactsDatabase.open");
     }

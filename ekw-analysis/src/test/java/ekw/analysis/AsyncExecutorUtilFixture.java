@@ -13,10 +13,13 @@ public final class AsyncExecutorUtilFixture {
     public static final String URL = "https://github.com/debopampoddar/asyncexecutorutil.git";
     public static final String COMMIT = "ef0d2c95941b822766c392fdc04640c8cc92d053";
 
-    private AsyncExecutorUtilFixture() {}
+    private AsyncExecutorUtilFixture() {
+    }
 
-    public static synchronized Path checkout() throws IOException, InterruptedException {
-        Path dir = Path.of("target", "fixtures", "asyncexecutorutil").toAbsolutePath();
+    public static synchronized Path checkout()
+            throws IOException, InterruptedException {
+        Path dir = Path.of("target", "fixtures", "asyncexecutorutil")
+                       .toAbsolutePath();
         if (!Files.isDirectory(dir.resolve(".git"))) {
             Files.createDirectories(dir.getParent());
             run(dir.getParent(), "git", "clone", "--quiet", URL, dir.toString());
@@ -25,8 +28,12 @@ public final class AsyncExecutorUtilFixture {
         return dir;
     }
 
-    private static void run(Path cwd, String... cmd) throws IOException, InterruptedException {
-        Process p = new ProcessBuilder(cmd).directory(cwd.toFile()).inheritIO().start();
-        if (!p.waitFor(5, TimeUnit.MINUTES) || p.exitValue() != 0) throw new IOException("failed: " + String.join(" ", cmd));
+    private static void run(Path cwd, String... cmd)
+            throws IOException, InterruptedException {
+        Process p = new ProcessBuilder(cmd).directory(cwd.toFile())
+                                           .inheritIO()
+                                           .start();
+        if (!p.waitFor(5, TimeUnit.MINUTES) || p.exitValue() != 0)
+            throw new IOException("failed: " + String.join(" ", cmd));
     }
 }

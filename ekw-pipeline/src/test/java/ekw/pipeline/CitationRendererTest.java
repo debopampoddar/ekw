@@ -32,7 +32,8 @@ class CitationRendererTest {
 
     private static WriterOutput output(String... ids) {
         List<Sentence> sentences = java.util.Arrays.stream(ids)
-                .map(i -> new Sentence("Claim citing " + i + ".", List.of(new Evidence.Id(i)))).toList();
+                                                   .map(i -> new Sentence("Claim citing " + i + ".", List.of(new Evidence.Id(i))))
+                                                   .toList();
         return new WriterOutput("Retry policies", "How a task is retried.",
                 List.of(new Section("How it works", List.of(new Paragraph(sentences)), Optional.empty())),
                 List.of("Fixed delays suit transient failures."), List.of("retry"), List.of(), List.of(), List.of());
@@ -46,7 +47,8 @@ class CitationRendererTest {
         assertThat(r.body()).contains("Claim citing E2.[^retrypolicy-none] Claim citing E1.[^retrypolicy-linear]");
         assertThat(r.body()).contains("[^retrypolicy-linear]: RetryPolicy.java L71-L96\n");
         assertThat(r.body()).contains("> Synthesis: Fixed delays suit transient failures.");
-        assertThat(r.sources()).extracting(s -> s.get("id")).containsExactly("retrypolicy-none", "retrypolicy-linear");
+        assertThat(r.sources()).extracting(s -> s.get("id"))
+                               .containsExactly("retrypolicy-none", "retrypolicy-linear");
         Map<String, Object> linear = r.sources().get(1);
         assertThat(linear.get("resource")).isEqualTo("https://github.com/debopampoddar/asyncexecutorutil/blob/"
                 + COMMIT + "/" + PATH + "#L71-L96");
@@ -56,6 +58,7 @@ class CitationRendererTest {
     @Test
     void rejectsIdsThatWereNotInThePacket() {
         assertThatThrownBy(() -> new CitationRenderer(s -> "").render(output("E1", "E9"), PACKET))
-                .isInstanceOf(CitationRenderer.UnknownEvidence.class).hasMessageContaining("E9");
+                .isInstanceOf(CitationRenderer.UnknownEvidence.class)
+                .hasMessageContaining("E9");
     }
 }

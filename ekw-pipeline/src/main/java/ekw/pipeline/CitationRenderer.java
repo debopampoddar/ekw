@@ -17,16 +17,26 @@ import java.util.function.Function;
  */
 public final class CitationRenderer {
 
-    /** The output cited evidence ids that were not in the packet: the whole output is invalid. */
+    /**
+     * The output cited evidence ids that were not in the packet: the whole output is invalid.
+     */
     public static final class UnknownEvidence extends RuntimeException {
         private static final long serialVersionUID = 1L;
-        public UnknownEvidence(Set<String> ids) { super("unknown evidence ids: " + ids); }
+
+        public UnknownEvidence(Set<String> ids) {
+            super("unknown evidence ids: " + ids);
+        }
     }
 
-    /** Body Markdown (without frontmatter) and the frontmatter's sources list, in first-citation order. */
-    public record Rendered(String body, List<Map<String, Object>> sources) {}
+    /**
+     * Body Markdown (without frontmatter) and the frontmatter's sources list, in first-citation order.
+     */
+    public record Rendered(String body, List<Map<String, Object>> sources) {
+    }
 
-    /** @param repositoryUrlForSystem e.g. "asyncexecutorutil" -> "https://github.com/debopampoddar/asyncexecutorutil" */
+    /**
+     * @param repositoryUrlForSystem e.g. "asyncexecutorutil" -> "https://github.com/debopampoddar/asyncexecutorutil"
+     */
     public CitationRenderer(Function<String, String> repositoryUrlForSystem) {
         // TODO (chapter 9): keep the function.
     }

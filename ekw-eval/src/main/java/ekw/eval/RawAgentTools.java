@@ -19,7 +19,9 @@ public final class RawAgentTools {
         // TODO (chapter 11): keep the checkout folder.
     }
 
-    /** grep, glob, read_file, in this order. */
+    /**
+     * grep, glob, read_file, in this order.
+     */
     public List<AnswerLoop.Tool> tools() {
         throw Todo.chapter(11, "RawAgentTools.tools");
     }

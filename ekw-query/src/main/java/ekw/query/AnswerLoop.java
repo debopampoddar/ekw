@@ -19,16 +19,25 @@ import java.util.function.Function;
  */
 public final class AnswerLoop {
 
-    /** A read tool's output: text (with evidence ids), and whether it is an error the model should correct. */
-    public record ToolOutput(String text, boolean isError) {}
+    /**
+     * A read tool's output: text (with evidence ids), and whether it is an error the model should correct.
+     */
+    public record ToolOutput(String text, boolean isError) {
+    }
 
-    /** A tool the model may call: its spec, and the code that runs it. */
-    public record Tool(ToolSpec spec, Function<Map<String, Object>, ToolOutput> run) {}
+    /**
+     * A tool the model may call: its spec, and the code that runs it.
+     */
+    public record Tool(ToolSpec spec, Function<Map<String, Object>, ToolOutput> run) {
+    }
 
-    public enum End { SUBMITTED, CONVERTED, STEP_LIMIT, BUDGET }
+    public enum End {SUBMITTED, CONVERTED, STEP_LIMIT, BUDGET}
 
-    /** The answer object, how the loop ended, and how many model and tool calls it made. */
-    public record Result(Map<String, Object> answer, End end, int modelCalls, int toolCalls) {}
+    /**
+     * The answer object, how the loop ended, and how many model and tool calls it made.
+     */
+    public record Result(Map<String, Object> answer, End end, int modelCalls, int toolCalls) {
+    }
 
     public AnswerLoop(ChatModel model, Models.BudgetGuard guard, Map<String, Object> answerSchema) {
         // TODO (chapter 8): keep the arguments.

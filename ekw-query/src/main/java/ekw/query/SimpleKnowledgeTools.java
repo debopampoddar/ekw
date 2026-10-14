@@ -22,7 +22,9 @@ public final class SimpleKnowledgeTools {
         // TODO (chapter 11): keep the arguments.
     }
 
-    /** read_index, read_page, code_facts, read_code_lines, in this order. */
+    /**
+     * read_index, read_page, code_facts, read_code_lines, in this order.
+     */
     public List<AnswerLoop.Tool> tools() {
         throw Todo.chapter(11, "SimpleKnowledgeTools.tools");
     }

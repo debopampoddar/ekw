@@ -60,7 +60,12 @@ class WriterCallTest {
         Pipeline.WriterOutput out = WriterCall.parse(json());
         assertThat(out.title()).isEqualTo("Retry policies");
         assertThat(out.sections()).hasSize(2);
-        Pipeline.Sentence second = out.sections().get(0).paragraphs().get(0).sentences().get(1);
+        Pipeline.Sentence second = out.sections()
+                                      .get(0)
+                                      .paragraphs()
+                                      .get(0)
+                                      .sentences()
+                                      .get(1);
         assertThat(second.evidence()).containsExactly(new Evidence.Id("E2"), new Evidence.Id("E1"));
         assertThat(out.sections().get(0).diagramEvidenceId()).isEmpty();
         assertThat(out.sections().get(1).diagramEvidenceId()).contains("E3");
@@ -71,20 +76,33 @@ class WriterCallTest {
         assertThat(out.evidenceRequests()).isEmpty();
     }
 
-    /** Returns the recorded JSON and remembers the request. */
+    /**
+     * Returns the recorded JSON and remembers the request.
+     */
     static final class ScriptedWriter implements Models.ChatModel {
         final List<Models.ChatRequest> requests = new ArrayList<>();
         final String reply;
-        ScriptedWriter(String reply) { this.reply = reply; }
-        @Override public Models.ModelInfo info() {
+
+        ScriptedWriter(String reply) {
+            this.reply = reply;
+        }
+
+        @Override
+        public Models.ModelInfo info() {
             return new Models.ModelInfo("fake", "test", "fake", 200_000, 16_000, PRICES, false, List.of());
         }
-        @Override public Models.ChatResult chat(Models.ChatRequest r) {
+
+        @Override
+        public Models.ChatResult chat(Models.ChatRequest r) {
             requests.add(r);
             return new Models.ChatResult(List.of(new Models.Text(reply)), Models.StopReason.END_TURN,
                     new Models.Usage(5_000, 1_000, 0, 0), "fake", Duration.ZERO);
         }
-        @Override public Models.TokenEstimate estimate(Models.ChatRequest r) { return new Models.TokenEstimate(5_000, true); }
+
+        @Override
+        public Models.TokenEstimate estimate(Models.ChatRequest r) {
+            return new Models.TokenEstimate(5_000, true);
+        }
     }
 
     @Test
@@ -100,15 +118,21 @@ class WriterCallTest {
         Models.ChatRequest request = writer.request(page);
         assertThat(request.role()).isEqualTo(Models.Role.WRITER);
         assertThat(request.prompt()).isEqualTo(new Models.PromptRef("writer.page", 1));
-        assertThat(request.system()).contains("CONVENTIONS EXCERPT").doesNotContain("{{");
+        assertThat(request.system()).contains("CONVENTIONS EXCERPT")
+                                    .doesNotContain("{{");
         assertThat(request.tools()).isEmpty();
         assertThat(request.outputSchema()).isPresent();
         assertThat(request.effort()).contains(Models.Effort.HIGH);
         assertThat(request.maxOutputTokens()).isEqualTo(16_000);
         assertThat(request.messages()).hasSize(1);
-        String user = ((Models.Text) request.messages().get(0).parts().get(0)).text();
+        String user = ((Models.Text) request.messages()
+                                            .get(0)
+                                            .parts()
+                                            .get(0)).text();
         assertThat(user).contains("Write the \"Component\" page \"Retry policies\" for system \"asyncexecutorutil\" at commit ef0d2c9.")
-                .contains(WriterCall.evidenceBlock(ONE_LINE)).contains(WriterCall.evidenceBlock(CODE)).doesNotContain("{{");
+                        .contains(WriterCall.evidenceBlock(ONE_LINE))
+                        .contains(WriterCall.evidenceBlock(CODE))
+                        .doesNotContain("{{");
         assertThat(request.evidence().items()).hasSize(2);
 
         Pipeline.WriterOutput out = writer.write(page);

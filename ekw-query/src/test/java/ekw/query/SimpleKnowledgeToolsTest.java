@@ -24,7 +24,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Tag("ch11")
 class SimpleKnowledgeToolsTest {
-    @TempDir Path dir;
+    @TempDir
+    Path dir;
     private Map<String, AnswerLoop.Tool> tools;
 
     private static CodeLocation at(String path, int start, int end) {
@@ -42,7 +43,9 @@ class SimpleKnowledgeToolsTest {
         Path checkout = dir.resolve("checkout");
         Files.createDirectories(checkout.resolve("src"));
         Files.writeString(checkout.resolve("src/RetryPolicy.java"),
-                IntStream.rangeClosed(1, 200).mapToObj(i -> "line " + i).collect(Collectors.joining("\n", "", "\n")));
+                IntStream.rangeClosed(1, 200)
+                         .mapToObj(i -> "line " + i)
+                         .collect(Collectors.joining("\n", "", "\n")));
 
         SymbolId policy = new SymbolId("java:demo.RetryPolicy");
         SymbolId execute = new SymbolId("java:demo.RetryPolicy#execute(java.util.concurrent.Callable)");
@@ -58,8 +61,10 @@ class SimpleKnowledgeToolsTest {
                     at("src/TaskExecutor.java", 220, 220), Set.of(), Optional.empty()));
             sink.commit();
         }
-        tools = new SimpleKnowledgeTools(wiki, facts, checkout, "demo").tools().stream()
-                .collect(Collectors.toMap(t -> t.spec().name(), t -> t));
+        tools = new SimpleKnowledgeTools(wiki, facts, checkout, "demo").tools()
+                                                                       .stream()
+                                                                       .collect(Collectors.toMap(t -> t.spec()
+                                                                                                       .name(), t -> t));
     }
 
     private AnswerLoop.ToolOutput call(String tool, Map<String, Object> args) {
@@ -68,12 +73,16 @@ class SimpleKnowledgeToolsTest {
 
     @Test
     void offersFourToolsWithStrictSchemas() throws IOException {
-        List<String> names = new SimpleKnowledgeTools(dir.resolve("wiki"), null, dir, "demo").tools().stream()
-                .map(t -> t.spec().name()).toList();
+        List<String> names = new SimpleKnowledgeTools(dir.resolve("wiki"), null, dir, "demo").tools()
+                                                                                             .stream()
+                                                                                             .map(t -> t.spec()
+                                                                                                        .name())
+                                                                                             .toList();
         assertThat(names).containsExactly("read_index", "read_page", "code_facts", "read_code_lines");
         assertThat(tools.values()).allSatisfy(t -> {
             assertThat(t.spec().description()).isNotBlank();
-            assertThat(t.spec().inputSchema()).containsEntry("type", "object").containsEntry("additionalProperties", false);
+            assertThat(t.spec().inputSchema()).containsEntry("type", "object")
+                                              .containsEntry("additionalProperties", false);
         });
     }
 
@@ -89,13 +98,16 @@ class SimpleKnowledgeToolsTest {
     @Test
     void answersCodeFactsWithLocations() {
         assertThat(call("code_facts", Map.of("op", "symbol", "name", "Linear")).text())
-                .contains("java:demo.RetryPolicy.Linear").contains("src/RetryPolicy.java L71-L96");
+                .contains("java:demo.RetryPolicy.Linear")
+                .contains("src/RetryPolicy.java L71-L96");
         assertThat(call("code_facts", Map.of("op", "implementations", "name", "RetryPolicy")).text())
                 .contains("java:demo.RetryPolicy.Linear");
         assertThat(call("code_facts", Map.of("op", "members", "name", "RetryPolicy")).text())
-                .contains("execute(Callable)").contains("src/RetryPolicy.java L39");
+                .contains("execute(Callable)")
+                .contains("src/RetryPolicy.java L39");
         assertThat(call("code_facts", Map.of("op", "callers", "name", "RetryPolicy#execute")).text())
-                .contains("java:demo.TaskExecutor#run()").contains("src/TaskExecutor.java L220");
+                .contains("java:demo.TaskExecutor#run()")
+                .contains("src/TaskExecutor.java L220");
         AnswerLoop.ToolOutput none = call("code_facts", Map.of("op", "symbol", "name", "Missing"));
         assertThat(none.isError()).isFalse();                          // "nothing found" is an answer, not an error
         assertThat(none.text()).contains("No facts");

@@ -13,10 +13,13 @@ import ekw.llm.PromptRegistry;
  */
 public final class WriterCall {
 
-    /** What the page is and what it may use. The strings fill the placeholders of writer.page@1. */
+    /**
+     * What the page is and what it may use. The strings fill the placeholders of writer.page@1.
+     */
     public record PageRequest(String pageType, String titleHint, String system, String commitShort,
                               String templateSections, String typeSpecificInstructions, String linkablePages,
-                              Evidence.Packet packet) {}
+                              Evidence.Packet packet) {
+    }
 
     /**
      * @param conventionsExcerpt the text that fills writer.system@1's {{conventions_sections_2_5_8}}
@@ -34,7 +37,9 @@ public final class WriterCall {
         throw Todo.chapter(10, "WriterCall.request");
     }
 
-    /** Reserve, call, settle; then parse the model's JSON text into WriterOutput. */
+    /**
+     * Reserve, call, settle; then parse the model's JSON text into WriterOutput.
+     */
     public Pipeline.WriterOutput write(PageRequest page) {
         throw Todo.chapter(10, "WriterCall.write");
     }
@@ -51,7 +56,9 @@ public final class WriterCall {
         throw Todo.chapter(10, "WriterCall.evidenceBlock");
     }
 
-    /** The writer's JSON (schema writer.page@1, snake_case) as a WriterOutput. */
+    /**
+     * The writer's JSON (schema writer.page@1, snake_case) as a WriterOutput.
+     */
     public static Pipeline.WriterOutput parse(String json) {
         throw Todo.chapter(10, "WriterCall.parse");
     }

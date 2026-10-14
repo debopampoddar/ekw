@@ -12,7 +12,8 @@ class FingerprintTest {
     @Test
     void hashesSelectedLinesWithTrailingNewline() {
         String file = "a\nb\nc\n";
-        assertThat(Fingerprint.ofRange(file, 2, 3)).isEqualTo(Fingerprint.sha256Hex("b\nc\n").substring(0, 16));
+        assertThat(Fingerprint.ofRange(file, 2, 3)).isEqualTo(Fingerprint.sha256Hex("b\nc\n")
+                                                                         .substring(0, 16));
     }
 
     @Test

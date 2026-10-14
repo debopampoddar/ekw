@@ -13,7 +13,9 @@ import java.util.List;
  */
 public final class JdtJavaAnalyzer implements Facts.LanguageAnalyzer {
 
-    /** Paths in facts are relative to {@code repositoryRoot}, so citations work for every module. */
+    /**
+     * Paths in facts are relative to {@code repositoryRoot}, so citations work for every module.
+     */
     public JdtJavaAnalyzer(Path repositoryRoot) {
         this(repositoryRoot, List.of());
     }

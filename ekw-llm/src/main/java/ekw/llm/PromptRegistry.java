@@ -16,11 +16,13 @@ import java.util.Set;
  */
 public final class PromptRegistry {
 
-    /** One prompt template. */
+    /**
+     * One prompt template.
+     */
     public record Prompt(Models.PromptRef ref, String template) {
 
         /** The placeholder names in the template, e.g. "evidence_items". */
-        public Set<String> placeholders() {
+        public Set<String> placeholders () {
             throw Todo.chapter(10, "Prompt.placeholders");
         }
 
@@ -28,29 +30,38 @@ public final class PromptRegistry {
          * Replaces every {@code {{name}}} with its value. Throws IllegalArgumentException if a placeholder has no value,
          * or a value has no placeholder: both are bugs in the calling code.
          */
-        public String fill(Map<String, String> values) {
+        public String fill (Map < String, String > values){
             throw Todo.chapter(10, "Prompt.fill");
         }
     }
 
-    private PromptRegistry() {}
+    private PromptRegistry() {
+    }
 
-    /** Loads every prompt listed in prompts/prompts.txt (blank lines and # comments ignored). */
+    /**
+     * Loads every prompt listed in prompts/prompts.txt (blank lines and # comments ignored).
+     */
     public static PromptRegistry fromClasspath() {
         throw Todo.chapter(10, "PromptRegistry.fromClasspath");
     }
 
-    /** The prompt, or IllegalArgumentException if it is not listed. */
+    /**
+     * The prompt, or IllegalArgumentException if it is not listed.
+     */
     public Prompt prompt(String id, int version) {
         throw Todo.chapter(10, "PromptRegistry.prompt");
     }
 
-    /** The JSON schema prompts/<id>@<version>.schema.json as a map, if the file exists. */
+    /**
+     * The JSON schema prompts/<id>@<version>.schema.json as a map, if the file exists.
+     */
     public Optional<Map<String, Object>> schema(String id, int version) {
         throw Todo.chapter(10, "PromptRegistry.schema");
     }
 
-    /** Every listed prompt, in file order. */
+    /**
+     * Every listed prompt, in file order.
+     */
     public List<Models.PromptRef> all() {
         throw Todo.chapter(10, "PromptRegistry.all");
     }

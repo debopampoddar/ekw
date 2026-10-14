@@ -17,7 +17,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Tag("ch11")
 class RawAgentToolsTest {
-    @TempDir Path dir;
+    @TempDir
+    Path dir;
     private Map<String, AnswerLoop.Tool> tools;
 
     @BeforeEach
@@ -30,9 +31,14 @@ class RawAgentToolsTest {
         Files.writeString(checkout.resolve(".git/config"), "foo = git internals\n");
         Files.writeString(checkout.resolve("README.md"), "Use foo to start.\n");
         Files.writeString(checkout.resolve("src/Many.txt"),
-                IntStream.rangeClosed(1, 300).mapToObj(i -> "foo " + i).collect(Collectors.joining("\n", "", "\n")));
+                IntStream.rangeClosed(1, 300)
+                         .mapToObj(i -> "foo " + i)
+                         .collect(Collectors.joining("\n", "", "\n")));
         Files.writeString(dir.resolve("outside.txt"), "secret foo\n");
-        tools = new RawAgentTools(checkout).tools().stream().collect(Collectors.toMap(t -> t.spec().name(), t -> t));
+        tools = new RawAgentTools(checkout).tools()
+                                           .stream()
+                                           .collect(Collectors.toMap(t -> t.spec()
+                                                                           .name(), t -> t));
     }
 
     private AnswerLoop.ToolOutput call(String tool, Map<String, Object> args) {
@@ -42,11 +48,15 @@ class RawAgentToolsTest {
     @Test
     void grepFindsLinesButNotGitInternals() {
         String hits = call("grep", Map.of("pattern", "void foo", "glob", "**/*.java")).text();
-        assertThat(hits).contains("src/A.java:2:   void foo() {}").doesNotContain("B.java");
+        assertThat(hits).contains("src/A.java:2:   void foo() {}")
+                        .doesNotContain("B.java");
         String all = call("grep", Map.of("pattern", "foo")).text();
-        assertThat(all).contains("README.md:1: Use foo to start.").doesNotContain(".git");      // files in path order
+        assertThat(all).contains("README.md:1: Use foo to start.")
+                       .doesNotContain(".git");      // files in path order
         assertThat(call("grep", Map.of("pattern", "int foo")).text()).isEqualTo("src/sub/B.java:1: class B { int foo; }");
-        assertThat(all.lines().filter(l -> l.matches("^[^ ]+:\\d+: .*")).count()).isEqualTo(50);
+        assertThat(all.lines()
+                      .filter(l -> l.matches("^[^ ]+:\\d+: .*"))
+                      .count()).isEqualTo(50);
         assertThat(all).contains("limited to 50");
         assertThat(call("grep", Map.of("pattern", "foo(")).isError()).isTrue();          // invalid regex
     }
@@ -63,9 +73,12 @@ class RawAgentToolsTest {
         assertThat(call("read_file", Map.of("path", "src/Many.txt", "start", 10, "end", 11)).text())
                 .contains("10: foo 10\n11: foo 11").doesNotContain("12: ");
         String capped = call("read_file", Map.of("path", "src/Many.txt")).text();
-        assertThat(capped).contains("200: foo 200").doesNotContain("201: ").contains("truncated at 200 lines");
+        assertThat(capped).contains("200: foo 200")
+                          .doesNotContain("201: ")
+                          .contains("truncated at 200 lines");
         assertThat(call("read_file", Map.of("path", "../outside.txt")).isError()).isTrue();
-        assertThat(call("read_file", Map.of("path", dir.resolve("outside.txt").toString())).isError()).isTrue();
+        assertThat(call("read_file", Map.of("path", dir.resolve("outside.txt")
+                                                       .toString())).isError()).isTrue();
         assertThat(call("read_file", Map.of("path", "src/Nope.java")).isError()).isTrue();
     }
 }

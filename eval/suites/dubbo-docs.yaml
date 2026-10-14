@@ -21,11 +21,11 @@ questions:
       - "Steps: check the access log, inspect threads with jps/jstack, raise dubbo.provider.threads, or add provider servers"
       - "In code, AbortPolicyWithReport logs 0-1 when the pool rejects a task"
     required_evidence:
-      - {kind: doc, location: "doc:F/0/1.md#L14-L25"}
-      - {kind: code, location: "C/constants/CommonConstants.java#L111"}
-      - {kind: code, location: "C/threadpool/support/AbortPolicyWithReport.java#L123"}
+      - { kind: doc, location: "doc:F/0/1.md#L14-L25" }
+      - { kind: code, location: "C/constants/CommonConstants.java#L111" }
+      - { kind: code, location: "C/threadpool/support/AbortPolicyWithReport.java#L123" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: medium
 
   - id: W02
@@ -35,11 +35,11 @@ questions:
       - "Yes: both say 200 (DEFAULT_THREADS = 200, read through the 'threads' key by FixedThreadPool)"
       - "A correct answer reports agreement and does not invent a discrepancy"
     required_evidence:
-      - {kind: doc, location: "doc:F/0/1.md#L15"}
-      - {kind: code, location: "C/constants/CommonConstants.java#L111"}
-      - {kind: code, location: "C/threadpool/support/fixed/FixedThreadPool.java#L55"}
+      - { kind: doc, location: "doc:F/0/1.md#L15" }
+      - { kind: code, location: "C/constants/CommonConstants.java#L111" }
+      - { kind: code, location: "C/threadpool/support/fixed/FixedThreadPool.java#L55" }
     expect_not_found: false
-    must_not_say: ["does not match", "differs"]
+    must_not_say: [ "does not match", "differs" ]
     difficulty: medium
 
   - id: W03
@@ -51,13 +51,13 @@ questions:
       - "It is logged by the Apollo and ZooKeeper dynamic-configuration (configuration center) implementations, and by the Curator5 ZooKeeper client, which registries also use"
       - "So the runbook fits the configuration-center sites; the constant's name is misleading"
     required_evidence:
-      - {kind: doc, location: "doc:F/5/1.md#L8-L27"}
-      - {kind: code, location: "C/constants/LoggerCodeConstants.java#L302"}
-      - {kind: code, location: "dubbo/dubbo-configcenter/dubbo-configcenter-apollo/src/main/java/org/apache/dubbo/configcenter/support/apollo/ApolloDynamicConfiguration.java#L127"}
-      - {kind: code, location: "dubbo/dubbo-configcenter/dubbo-configcenter-zookeeper/src/main/java/org/apache/dubbo/configcenter/support/zookeeper/ZookeeperDynamicConfiguration.java#L79"}
-      - {kind: code, location: "dubbo/dubbo-remoting/dubbo-remoting-zookeeper-curator5/src/main/java/org/apache/dubbo/remoting/zookeeper/curator5/Curator5ZookeeperClient.java#L109"}
+      - { kind: doc, location: "doc:F/5/1.md#L8-L27" }
+      - { kind: code, location: "C/constants/LoggerCodeConstants.java#L302" }
+      - { kind: code, location: "dubbo/dubbo-configcenter/dubbo-configcenter-apollo/src/main/java/org/apache/dubbo/configcenter/support/apollo/ApolloDynamicConfiguration.java#L127" }
+      - { kind: code, location: "dubbo/dubbo-configcenter/dubbo-configcenter-zookeeper/src/main/java/org/apache/dubbo/configcenter/support/zookeeper/ZookeeperDynamicConfiguration.java#L79" }
+      - { kind: code, location: "dubbo/dubbo-remoting/dubbo-remoting-zookeeper-curator5/src/main/java/org/apache/dubbo/remoting/zookeeper/curator5/Curator5ZookeeperClient.java#L109" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: hard
 
   - id: W04
@@ -68,10 +68,10 @@ questions:
       - "The code still defines REGISTRY_ADDRESS_INVALID = \"1-1\", but nothing in main code logs it"
       - "So the page is consistent with the code: no drift"
     required_evidence:
-      - {kind: doc, location: "doc:F/1/1.md#L14-L26"}
-      - {kind: code, location: "C/constants/LoggerCodeConstants.java#L98"}
+      - { kind: doc, location: "doc:F/1/1.md#L14-L26" }
+      - { kind: code, location: "C/constants/LoggerCodeConstants.java#L98" }
     expect_not_found: false
-    must_not_say: ["is still logged"]
+    must_not_say: [ "is still logged" ]
     difficulty: hard
 
   - id: W05
@@ -83,12 +83,12 @@ questions:
       - "Goal: fit infrastructure discovery models such as Kubernetes and service mesh"
       - "In code: ServiceDiscoveryRegistry and the register-mode setting (interface, instance, all)"
     required_evidence:
-      - {kind: doc, location: "doc:W/reference/proposals/service-discovery.md#L15-L18"}
-      - {kind: doc, location: "doc:W/reference/proposals/service-discovery.md#L63-L72"}
-      - {kind: code, location: "dubbo/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/client/ServiceDiscoveryRegistry.java#L75"}
-      - {kind: code, location: "C/constants/RegistryConstants.java#L63-L75"}
+      - { kind: doc, location: "doc:W/reference/proposals/service-discovery.md#L15-L18" }
+      - { kind: doc, location: "doc:W/reference/proposals/service-discovery.md#L63-L72" }
+      - { kind: code, location: "dubbo/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/client/ServiceDiscoveryRegistry.java#L75" }
+      - { kind: code, location: "C/constants/RegistryConstants.java#L63-L75" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: medium
 
   - id: W06
@@ -100,10 +100,10 @@ questions:
       - "Near miss: Triple's HTTP/2 flow controllers are a different mechanism"
       - "The answer flags a document-code disagreement and does not claim the feature works here"
     required_evidence:
-      - {kind: doc, location: "doc:W/reference/proposals/heuristic-flow-control.md#L103-L125"}
-      - {kind: code, location: "dubbo/dubbo-rpc/dubbo-rpc-triple/src/main/java/org/apache/dubbo/rpc/protocol/tri/TripleHttp2Protocol.java#L131"}
+      - { kind: doc, location: "doc:W/reference/proposals/heuristic-flow-control.md#L103-L125" }
+      - { kind: code, location: "dubbo/dubbo-rpc/dubbo-rpc-triple/src/main/java/org/apache/dubbo/rpc/protocol/tri/TripleHttp2Protocol.java#L131" }
     expect_not_found: true
-    must_not_say: ["set flowcontrol=heuristicSmoothingFlowControl and it works"]
+    must_not_say: [ "set flowcontrol=heuristicSmoothingFlowControl and it works" ]
     difficulty: hard
 
   - id: W07
@@ -114,11 +114,11 @@ questions:
       - "p2c: no P2C load balancer is registered or implemented in this repository"
       - "Beware: a text search for 'p2c' matches 'Http2Connection' in unrelated code"
     required_evidence:
-      - {kind: doc, location: "doc:W/reference/proposals/heuristic-flow-control.md#L40"}
-      - {kind: code, location: "dubbo/dubbo-cluster/src/main/resources/META-INF/dubbo/internal/org.apache.dubbo.rpc.cluster.LoadBalance#L1-L6"}
-      - {kind: code, location: "dubbo/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/loadbalance/AdaptiveLoadBalance.java#L36"}
+      - { kind: doc, location: "doc:W/reference/proposals/heuristic-flow-control.md#L40" }
+      - { kind: code, location: "dubbo/dubbo-cluster/src/main/resources/META-INF/dubbo/internal/org.apache.dubbo.rpc.cluster.LoadBalance#L1-L6" }
+      - { kind: code, location: "dubbo/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/loadbalance/AdaptiveLoadBalance.java#L36" }
     expect_not_found: false
-    must_not_say: ["p2c is available"]
+    must_not_say: [ "p2c is available" ]
     difficulty: hard
 
   - id: W08
@@ -129,9 +129,9 @@ questions:
       - "LeastActive's active-connection count also fails to reflect capacity"
       - "Hence a fairness-based P2C algorithm and an adaptive algorithm that estimates provider throughput"
     required_evidence:
-      - {kind: doc, location: "doc:W/reference/proposals/heuristic-flow-control.md#L22-L30"}
+      - { kind: doc, location: "doc:W/reference/proposals/heuristic-flow-control.md#L22-L30" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: medium
 
   - id: W09
@@ -140,9 +140,9 @@ questions:
     key_points:
       - "Yes: apache/dubbo issue #10510, '[Discussion] Adding more cases (error codes) in error code based troubleshooting'"
     required_evidence:
-      - {kind: ticket, location: "url:https://github.com/apache/dubbo/issues/10510"}
+      - { kind: ticket, location: "url:https://github.com/apache/dubbo/issues/10510" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: easy
 
   - id: W10
@@ -153,12 +153,12 @@ questions:
       - "Logged for example for an invalid migration threshold (DefaultMigrationAddressComparator) and an invalid migration delay (MigrationRuleListener), and in CacheableFailbackRegistry"
       - "The runbook page gives causes and steps"
     required_evidence:
-      - {kind: doc, location: "doc:F/0/2.md#L8-L19"}
-      - {kind: code, location: "C/constants/LoggerCodeConstants.java#L40"}
-      - {kind: code, location: "dubbo/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/client/migration/DefaultMigrationAddressComparator.java#L85"}
-      - {kind: code, location: "dubbo/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/client/migration/MigrationRuleListener.java#L155"}
+      - { kind: doc, location: "doc:F/0/2.md#L8-L19" }
+      - { kind: code, location: "C/constants/LoggerCodeConstants.java#L40" }
+      - { kind: code, location: "dubbo/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/client/migration/DefaultMigrationAddressComparator.java#L85" }
+      - { kind: code, location: "dubbo/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/client/migration/MigrationRuleListener.java#L155" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: medium
 
   - id: W11
@@ -168,11 +168,11 @@ questions:
       - "Yes, a troubleshooting page exists for 4-21"
       - "Code: PROTOCOL_UNTRUSTED_SERIALIZE_CLASS = \"4-21\", logged by DefaultSerializeClassChecker when a class is not trusted for deserialization"
     required_evidence:
-      - {kind: doc, location: "doc:F/4/21.md#L8-L27"}
-      - {kind: code, location: "C/constants/LoggerCodeConstants.java#L299"}
-      - {kind: code, location: "C/utils/DefaultSerializeClassChecker.java#L115"}
+      - { kind: doc, location: "doc:F/4/21.md#L8-L27" }
+      - { kind: code, location: "C/constants/LoggerCodeConstants.java#L299" }
+      - { kind: code, location: "C/utils/DefaultSerializeClassChecker.java#L115" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: medium
 
   - id: W12
@@ -181,8 +181,8 @@ questions:
     key_points:
       - "Seven: Dubbo Admin control plane architecture; adaptive load balancing and flow control; metrics tracking; Rest protocol; registry, configuration and metadata centers; application-level service discovery; Triple multi content-type support"
     required_evidence:
-      - {kind: doc, location: "doc:W/reference/proposals/service-discovery.md#L8"}
-      - {kind: doc, location: "doc:W/reference/proposals/heuristic-flow-control.md#L8"}
+      - { kind: doc, location: "doc:W/reference/proposals/service-discovery.md#L8" }
+      - { kind: doc, location: "doc:W/reference/proposals/heuristic-flow-control.md#L8" }
     expect_not_found: false
-    must_not_say: []
+    must_not_say: [ ]
     difficulty: easy

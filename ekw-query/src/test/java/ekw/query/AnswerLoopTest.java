@@ -30,29 +30,45 @@ class AnswerLoopTest {
     private static final PriceTable TABLE = new PriceTable(Map.of("fake", new PriceTable.Entry(PRICES, Optional.empty())));
     private static final Map<String, Object> SCHEMA = Map.of("type", "object");
 
-    /** Replays scripted replies and records every request. */
+    /**
+     * Replays scripted replies and records every request.
+     */
     static final class ScriptedModel implements Models.ChatModel {
         final Deque<List<Part>> replies = new ArrayDeque<>();
         final List<ChatRequest> requests = new ArrayList<>();
 
-        ScriptedModel reply(Part... parts) { replies.add(List.of(parts)); return this; }
+        ScriptedModel reply(Part... parts) {
+            replies.add(List.of(parts));
+            return this;
+        }
 
-        @Override public Models.ModelInfo info() {
+        @Override
+        public Models.ModelInfo info() {
             return new Models.ModelInfo("fake", "test", "fake", 200_000, 8_000, PRICES, false, List.of());
         }
-        @Override public ChatResult chat(ChatRequest r) {
+
+        @Override
+        public ChatResult chat(ChatRequest r) {
             requests.add(r);
             List<Part> parts = replies.removeFirst();
             boolean tool = parts.stream().anyMatch(p -> p instanceof ToolCall);
-            return new ChatResult(parts, tool ? Models.StopReason.TOOL_USE : Models.StopReason.END_TURN,
+            return new ChatResult(parts, tool ? Models.StopReason.TOOL_USE
+                                              : Models.StopReason.END_TURN,
                     new Models.Usage(1_000, 100, 0, 0), "fake", Duration.ZERO);
         }
-        @Override public Models.TokenEstimate estimate(ChatRequest r) { return new Models.TokenEstimate(1_000, true); }
+
+        @Override
+        public Models.TokenEstimate estimate(ChatRequest r) {
+            return new Models.TokenEstimate(1_000, true);
+        }
     }
 
     private static AnswerLoop.Tool readPage(List<String> log) {
         return new AnswerLoop.Tool(new Models.ToolSpec("read_page", "Read a page.", Map.of("type", "object")),
-                args -> { log.add((String) args.get("path")); return new AnswerLoop.ToolOutput("[E1] page text", false); });
+                args -> {
+                    log.add((String) args.get("path"));
+                    return new AnswerLoop.ToolOutput("[E1] page text", false);
+                });
     }
 
     @Test
@@ -69,8 +85,11 @@ class AnswerLoopTest {
         assertThat(r.end()).isEqualTo(AnswerLoop.End.SUBMITTED);
         assertThat(r.answer()).containsEntry("answer_markdown", "A [E1].");
         assertThat(log).containsExactly("a.md");
-        assertThat(model.requests.get(0).tools()).extracting(Models.ToolSpec::name).containsExactly("read_page", "submit_answer");
-        assertThat(model.requests.get(1).messages().get(2).parts()).first().isInstanceOf(ToolResult.class);
+        assertThat(model.requests.get(0)
+                                 .tools()).extracting(Models.ToolSpec::name)
+                                          .containsExactly("read_page", "submit_answer");
+        assertThat(model.requests.get(1).messages().get(2).parts()).first()
+                                                                   .isInstanceOf(ToolResult.class);
         assertThat(guard.spentUsd()).isEqualByComparingTo("0.006");          // 2 calls x (1K x $2 + 100 x $10) / 1M
     }
 

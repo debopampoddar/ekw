@@ -15,15 +15,19 @@ import java.util.Map;
  */
 public final class SuiteLoader {
 
-    public record Suite(String name, String system, String commit, List<Eval.EvalQuestion> questions) {}
+    public record Suite(String name, String system, String commit, List<Eval.EvalQuestion> questions) {
+    }
 
-    private SuiteLoader() {}
+    private SuiteLoader() {
+    }
 
     public static Suite load(Path file) throws IOException {
         throw Todo.chapter(11, "SuiteLoader.load");
     }
 
-    /** "P/Task.java#L13" with P -> "src/main/java/x" gives "src/main/java/x/Task.java#L13"; unknown prefixes stay. */
+    /**
+     * "P/Task.java#L13" with P -> "src/main/java/x" gives "src/main/java/x/Task.java#L13"; unknown prefixes stay.
+     */
     static String expand(String location, Map<String, String> aliases) {
         throw Todo.chapter(11, "SuiteLoader.expand");
     }

@@ -18,7 +18,9 @@ import java.util.List;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** Request and response mapping against a local stub of the Messages API. No real API call is made. */
+/**
+ * Request and response mapping against a local stub of the Messages API. No real API call is made.
+ */
 @Tag("ch07")
 @WireMockTest
 class AnthropicChatModelTest {
@@ -41,18 +43,30 @@ class AnthropicChatModelTest {
 
     @Test
     void toolTurnRoundTripKeepsThinkingBlocks(WireMockRuntimeInfo wm) {
-        stubFor(post("/v1/messages").inScenario("loop").whenScenarioStateIs(Scenario.STARTED)
-                .willReturn(okJson(TOOL_USE)).willSetStateTo("second"));
-        stubFor(post("/v1/messages").inScenario("loop").whenScenarioStateIs("second").willReturn(okJson(FINAL)));
-        AnthropicClient client = AnthropicOkHttpClient.builder().apiKey("test-key").baseUrl(wm.getHttpBaseUrl())
-                .maxRetries(0).build();
+        stubFor(post("/v1/messages").inScenario("loop")
+                                    .whenScenarioStateIs(Scenario.STARTED)
+                                    .willReturn(okJson(TOOL_USE))
+                                    .willSetStateTo("second"));
+        stubFor(post("/v1/messages").inScenario("loop")
+                                    .whenScenarioStateIs("second")
+                                    .willReturn(okJson(FINAL)));
+        AnthropicClient client = AnthropicOkHttpClient.builder()
+                                                      .apiKey("test-key")
+                                                      .baseUrl(wm.getHttpBaseUrl())
+                                                      .maxRetries(0)
+                                                      .build();
         AnthropicChatModel model = new AnthropicChatModel(client, TestModels.info("claude-sonnet-5-5", "anthropic"));
 
         List<Message> messages = new ArrayList<>(List.of(new Message("user", List.of(new Models.Text("What is A?")))));
         ChatResult first = model.chat(TestModels.request(messages, List.of(TestModels.readPage())));
 
         assertThat(first.stop()).isEqualTo(Models.StopReason.TOOL_USE);
-        ToolCall call = first.content().stream().filter(p -> p instanceof ToolCall).map(p -> (ToolCall) p).findFirst().orElseThrow();
+        ToolCall call = first.content()
+                             .stream()
+                             .filter(p -> p instanceof ToolCall)
+                             .map(p -> (ToolCall) p)
+                             .findFirst()
+                             .orElseThrow();
         assertThat(call.name()).isEqualTo("read_page");
         assertThat(call.arguments()).containsEntry("path", "systems/a/overview.md");
         assertThat(first.usage()).isEqualTo(new Models.Usage(1200, 80, 3000, 0));

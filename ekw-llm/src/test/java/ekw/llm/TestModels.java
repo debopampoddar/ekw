@@ -10,7 +10,8 @@ import java.util.Map;
 import java.util.Optional;
 
 final class TestModels {
-    private TestModels() {}
+    private TestModels() {
+    }
 
     static final PriceTable PRICES = new PriceTable(Map.of(
             "claude-sonnet-5-5", new PriceTable.Entry(prices("2.00", "10.00", "0.20", "2.50"), Optional.empty()),
@@ -25,7 +26,8 @@ final class TestModels {
     }
 
     static ModelInfo info(String id, String provider) {
-        return new ModelInfo(id, provider, id, 1_000_000, 128_000, PRICES.entry(id).prices(), false, List.of());
+        return new ModelInfo(id, provider, id, 1_000_000, 128_000, PRICES.entry(id)
+                                                                         .prices(), false, List.of());
     }
 
     static Models.ChatRequest request(List<Models.Message> messages, List<Models.ToolSpec> tools) {

@@ -45,14 +45,19 @@ class SqliteFactsTest {
         }
 
         assertThat(facts.findTypes("demo", "Linear", 5)).singleElement()
-                .satisfies(t -> assertThat(t.span().startLine()).isEqualTo(71));
-        assertThat(facts.findTypes("demo", "demo.RetryPolicy", 5)).extracting(Facts.TypeFact::id).containsExactly(policy);
-        assertThat(facts.implementations("demo", policy, 10)).extracting(Facts.TypeFact::id).containsExactly(linear);
-        assertThat(facts.members("demo", policy)).extracting(Facts.MemberFact::id).containsExactly(execute);
+                                                        .satisfies(t -> assertThat(t.span()
+                                                                                    .startLine()).isEqualTo(71));
+        assertThat(facts.findTypes("demo", "demo.RetryPolicy", 5)).extracting(Facts.TypeFact::id)
+                                                                  .containsExactly(policy);
+        assertThat(facts.implementations("demo", policy, 10)).extracting(Facts.TypeFact::id)
+                                                             .containsExactly(linear);
+        assertThat(facts.members("demo", policy)).extracting(Facts.MemberFact::id)
+                                                 .containsExactly(execute);
         assertThat(facts.callers("demo", execute, 10)).singleElement()
-                .satisfies(c -> assertThat(c.flags()).containsExactly(Facts.CallFlag.IN_LAMBDA));
+                                                      .satisfies(c -> assertThat(c.flags()).containsExactly(Facts.CallFlag.IN_LAMBDA));
         assertThat(facts.callees("demo", caller, 10)).hasSize(2);
-        assertThat(facts.memberByBodyHash("demo", "abcd")).map(Facts.MemberFact::id).contains(execute);
+        assertThat(facts.memberByBodyHash("demo", "abcd")).map(Facts.MemberFact::id)
+                                                          .contains(execute);
     }
 
     @Test
@@ -60,8 +65,9 @@ class SqliteFactsTest {
         FactsDatabase.open(dir.resolve("ekw.db"));
         FactsDatabase again = FactsDatabase.open(dir.resolve("ekw.db"));
         Integer tables = again.jdbi().withHandle(h -> h.createQuery(
-                "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'flyway%'")
-                .mapTo(Integer.class).one());
+                                                               "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'flyway%'")
+                                                       .mapTo(Integer.class)
+                                                       .one());
         assertThat(tables).isEqualTo(24);
     }
 }

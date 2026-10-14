@@ -6,8 +6,19 @@
       "heading": "What it does",
       "paragraphs": [
         [
-          {"text": "Every task carries exactly one retry policy.", "evidence": ["E1"]},
-          {"text": "A Linear policy waits a fixed interval between attempts.", "evidence": ["E2", "E1"]}
+          {
+            "text": "Every task carries exactly one retry policy.",
+            "evidence": [
+              "E1"
+            ]
+          },
+          {
+            "text": "A Linear policy waits a fixed interval between attempts.",
+            "evidence": [
+              "E2",
+              "E1"
+            ]
+          }
         ]
       ],
       "diagram_evidence_id": null
@@ -19,9 +30,18 @@
     }
   ],
   "keep_sections": [],
-  "synthesis": ["Fixed delays suit transient failures."],
-  "concepts": ["retry-policy"],
-  "read": ["RetryPolicy.java", "Task.java"],
-  "not_read": ["tests"],
+  "synthesis": [
+    "Fixed delays suit transient failures."
+  ],
+  "concepts": [
+    "retry-policy"
+  ],
+  "read": [
+    "RetryPolicy.java",
+    "Task.java"
+  ],
+  "not_read": [
+    "tests"
+  ],
   "evidence_requests": []
 }

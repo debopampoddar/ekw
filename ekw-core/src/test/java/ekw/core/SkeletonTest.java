@@ -5,7 +5,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** Runs from day one: proves the build, the test setup and the chapter switch work. */
+/**
+ * Runs from day one: proves the build, the test setup and the chapter switch work.
+ */
 @Tag("skeleton")
 class SkeletonTest {
 

@@ -34,8 +34,7 @@
     <properties>
         <maven.compiler.release>25</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!-- Chapters you have finished. Add yours here as you go: skeleton | ch02 -->
-        <ekw.chapters>skeleton</ekw.chapters>
+        <ekw.chapters>skeleton | ch02 | ch03</ekw.chapters>
         <surefire.excludedGroups>network</surefire.excludedGroups>
 
         <jdt.version>3.47.0</jdt.version>

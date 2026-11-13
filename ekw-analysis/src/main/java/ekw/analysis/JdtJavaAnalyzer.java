@@ -1,13 +1,9 @@
 package ekw.analysis;
 
-import ekw.analysis.Facts.CallFact;
 import ekw.analysis.Facts.CallFlag;
 import ekw.analysis.Facts.FactSink;
-import ekw.analysis.Facts.MemberFact;
 import ekw.analysis.Facts.MemberKind;
-import ekw.analysis.Facts.ModuleSpec;
 import ekw.analysis.Facts.SymbolId;
-import ekw.analysis.Facts.TypeFact;
 import ekw.analysis.Facts.TypeKind;
 import ekw.core.Evidence.CodeLocation;
 import ekw.core.Fingerprint;
@@ -106,12 +102,12 @@ public final class JdtJavaAnalyzer implements Facts.LanguageAnalyzer {
     }
 
     @Override
-    public boolean accepts(Facts.ModuleSpec module) {
+    public boolean accepts(ModuleSpec module) {
         return module.sourceRoots().stream().anyMatch(Files::isDirectory);
     }
 
     @Override
-    public Facts.AnalysisReport analyze(Facts.ModuleSpec module, Facts.Classpath classpath, Facts.FactSink sink) {
+    public AnalysisReport analyze(ModuleSpec module, Facts.Classpath classpath, FactSink sink) {
         long t0 = System.nanoTime();
         Set<String> testFiles = new HashSet<>(javaFiles(module.testRoots()));
         List<String> files = new ArrayList<>(javaFiles(module.sourceRoots()));
@@ -161,8 +157,15 @@ public final class JdtJavaAnalyzer implements Facts.LanguageAnalyzer {
                         }
                     }
                 }, null);
-        return new Facts.AnalysisReport(module.name(), files.size(), counts[0], counts[1], counts[0] - counts[1],
-                Duration.ofNanos(System.nanoTime() - t0), new ArrayList<>());
+        return AnalysisReport.builder()
+                .module(module.name())
+                .files(files.size())
+                .callSites(counts[0])
+                .resolvedCallSites(counts[1])
+                .unresolvedCallSites(counts[0] - counts[1])
+                .time(Duration.ofNanos(System.nanoTime() - t0))
+                .warnings(new ArrayList<>())
+                .build();
     }
 
     private static List<String> javaFiles(List<Path> pathList) {
@@ -295,8 +298,16 @@ public final class JdtJavaAnalyzer implements Facts.LanguageAnalyzer {
             }
             for (ITypeBinding i : b.getInterfaces())
                 supers.add(typeId(i));
-            sink.type(new TypeFact(typeId(b), module.name(), kind, modifiers(b.getModifiers()),
-                    span(node, node.getJavadoc()), firstSentence(node.getJavadoc()), supers, test));
+            sink.type(TypeFact.builder()
+                    .id(typeId(b))
+                    .module(module.name())
+                    .kind(kind)
+                    .modifiers(modifiers(b.getModifiers()))
+                    .span(span(node, node.getJavadoc()))
+                    .javadocFirstSentence(firstSentence(node.getJavadoc()))
+                    .supertypes(supers)
+                    .test(test)
+                    .build());
             return true;
         }
 
@@ -325,11 +336,16 @@ public final class JdtJavaAnalyzer implements Facts.LanguageAnalyzer {
         public boolean visit(MethodDeclaration n) {
             IMethodBinding b = n.resolveBinding();
             if (b == null || b.getDeclaringClass() == null) return true;
-            sink.member(new MemberFact(methodId(b), typeId(b.getDeclaringClass()),
-                    n.isConstructor() ? MemberKind.CONSTRUCTOR
-                                      : MemberKind.METHOD, b.toString(),
-                    modifiers(n.getModifiers()), span(n, n.getJavadoc()), bodyHash(n, n.getJavadoc()),
-                    firstSentence(n.getJavadoc())));
+            sink.member(MemberFact.builder()
+                    .id(methodId(b))
+                    .owner(typeId(b.getDeclaringClass()))
+                    .kind(n.isConstructor() ? MemberKind.CONSTRUCTOR : MemberKind.METHOD)
+                    .signature(b.toString())
+                    .modifiers(modifiers(n.getModifiers()))
+                    .span(span(n, n.getJavadoc()))
+                    .bodyHash(bodyHash(n, n.getJavadoc()))
+                    .javadocFirstSentence(firstSentence(n.getJavadoc()))
+                    .build());
             return true;
         }
 
@@ -341,12 +357,16 @@ public final class JdtJavaAnalyzer implements Facts.LanguageAnalyzer {
                 String owner = v.getDeclaringClass()
                                 .getErasure()
                                 .getQualifiedName();
-                sink.member(new MemberFact(new SymbolId("java:" + owner + "#" + v.getName()), typeId(v.getDeclaringClass()),
-                        MemberKind.FIELD, v.getType()
-                                           .getErasure()
-                                           .getQualifiedName() + " " + v.getName(),
-                        modifiers(n.getModifiers()), span(n, n.getJavadoc()), bodyHash(n, n.getJavadoc()),
-                        firstSentence(n.getJavadoc())));
+                sink.member(MemberFact.builder()
+                        .id(new SymbolId("java:" + owner + "#" + v.getName()))
+                        .owner(typeId(v.getDeclaringClass()))
+                        .kind(MemberKind.FIELD)
+                        .signature(v.getType().getErasure().getQualifiedName() + " " + v.getName())
+                        .modifiers(modifiers(n.getModifiers()))
+                        .span(span(n, n.getJavadoc()))
+                        .bodyHash(bodyHash(n, n.getJavadoc()))
+                        .javadocFirstSentence(firstSentence(n.getJavadoc()))
+                        .build());
             }
             return true;
         }
@@ -446,11 +466,14 @@ public final class JdtJavaAnalyzer implements Facts.LanguageAnalyzer {
                                                                   .isRecovered();
             counts[0]++;
             if (resolved) counts[1]++;
-            sink.call(new CallFact(callerId(enclosing),
-                    resolved ? Optional.of(methodId(b))
-                             : Optional.empty(), at(pos),
-                    flags, resolved ? Optional.empty() : Optional.of(
-                    b == null ? "no binding" : "recovered binding")));
+            sink.call(CallFact.builder()
+                    .caller(callerId(enclosing))
+                    .callee(resolved ? Optional.of(methodId(b)) : Optional.empty())
+                    .site(at(pos))
+                    .flags(flags)
+                    .unresolvedReason(resolved ? Optional.empty()
+                            : Optional.of(b == null ? "no binding" : "recovered binding"))
+                    .build());
         }
 
         private SymbolId callerId(ASTNode enclosing) {

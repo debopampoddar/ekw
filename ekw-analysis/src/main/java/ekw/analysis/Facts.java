@@ -1,16 +1,16 @@
 package ekw.analysis;
 
-import ekw.core.Evidence.CodeLocation;
-
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Facts produced by static analysis. Never produced by a model.
+ *
+ * <p>The fact records themselves ({@link TypeFact}, {@link MemberFact}, {@link CallFact}, and so on) live in their
+ * own top-level classes, each with a builder; this class holds the small shared types and the interfaces that tie
+ * them together.
  */
 public final class Facts {
     private Facts() {
@@ -31,60 +31,7 @@ public final class Facts {
         IN_LOOP, CONDITIONAL, IN_CATCH, IN_FINALLY, CONSTRUCTOR_CALL, SUPER_CALL, VIRTUAL
     }
 
-    public record TypeFact(SymbolId id, String module, TypeKind kind, Set<String> modifiers, CodeLocation span,
-                           Optional<String> javadocFirstSentence, List<SymbolId> supertypes, boolean test) {
-    }
-
-    /**
-     * bodyHash lets relocated code be recognized (see evidence relocation).
-     */
-    public record MemberFact(SymbolId id, SymbolId owner, MemberKind kind, String signature, Set<String> modifiers,
-                             CodeLocation span, String bodyHash, Optional<String> javadocFirstSentence) {
-    }
-
-    public record CallFact(SymbolId caller, Optional<SymbolId> callee, CodeLocation site, Set<CallFlag> flags,
-                           Optional<String> unresolvedReason) {
-    }
-
-    public record AnnotationFact(SymbolId target, String annotationType, Map<String, String> values,
-                                 CodeLocation site) {
-    }
-
-    /**
-     * A configuration key read in code or declared in a properties/yaml file; values are never stored.
-     */
-    public record ConfigKeyFact(String key, Optional<String> defaultValue, CodeLocation site, String how) {
-    }
-
-    /**
-     * A log call whose first argument is a constant code, e.g. Dubbo's "0-1".
-     */
-    public record ErrorCodeFact(String code, Optional<SymbolId> constant, CodeLocation logSite, String level) {
-    }
-
-    /**
-     * SPI registration: interface -> name -> implementation (META-INF/services, META-INF/dubbo/**).
-     */
-    public record SpiFact(SymbolId extensionInterface, String name, SymbolId implementation, CodeLocation file) {
-    }
-
-    public record ModuleFact(String name, String groupId, String artifactId, Path root, String javaRelease,
-                             List<String> dependsOnModules) {
-    }
-
-    public record DependencyFact(String module, String groupId, String artifactId, String version, String scope,
-                                 boolean optional, boolean resolved, CodeLocation declaredAt) {
-    }
-
-    public record ModuleSpec(String system, String commit, String name, Path root, List<Path> sourceRoots,
-                             List<Path> testRoots, String javaRelease) {
-    }
-
     public record Classpath(List<Path> jars, List<String> unresolvedCoordinates) {
-    }
-
-    public record AnalysisReport(String module, int files, int callSites, int resolvedCallSites,
-                                 int unresolvedCallSites, Duration time, List<String> warnings) {
     }
 
     /**

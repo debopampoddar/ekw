@@ -1,7 +1,10 @@
 package ekw.pipeline;
 
+import ekw.analysis.CallFact;
 import ekw.analysis.Facts;
 import ekw.analysis.Facts.SymbolId;
+import ekw.analysis.MemberFact;
+import ekw.analysis.TypeFact;
 import ekw.core.Evidence.CodeLocation;
 import ekw.core.MarkdownPage;
 import ekw.store.FactsDatabase;
@@ -36,16 +39,17 @@ class SimpleFactPagesTest {
     static SqliteFacts sampleFacts(Path dir) {
         SqliteFacts facts = new SqliteFacts(FactsDatabase.open(dir.resolve("ekw.db")));
         try (SqliteFacts.Sink sink = facts.sink("demo", "c1", "2025-02-23T17:40:45Z", "test")) {
-            sink.type(new Facts.TypeFact(POLICY, "demo", Facts.TypeKind.CLASS, Set.of("public", "abstract"),
-                    at("RetryPolicy.java", 14, 135), Optional.of("Retry policy."), List.of(), false));
-            sink.type(new Facts.TypeFact(LINEAR, "demo", Facts.TypeKind.CLASS, Set.of("public", "static"),
-                    at("RetryPolicy.java", 71, 96), Optional.empty(), List.of(POLICY), false));
-            sink.member(new Facts.MemberFact(EXECUTE, POLICY, Facts.MemberKind.METHOD, "execute(Callable)",
-                    Set.of("public", "abstract"), at("RetryPolicy.java", 39, 39), "abcd", Optional.empty()));
-            sink.call(new Facts.CallFact(RUN, Optional.of(EXECUTE), at("TaskExecutor.java", 220, 220),
-                    Set.of(), Optional.empty()));
-            sink.call(new Facts.CallFact(EXECUTE, Optional.of(CALL), at("RetryPolicy.java", 39, 39),
-                    Set.of(), Optional.empty()));
+            sink.type(TypeFact.builder().id(POLICY).module("demo").kind(Facts.TypeKind.CLASS)
+                    .modifiers(Set.of("public", "abstract")).span(at("RetryPolicy.java", 14, 135))
+                    .javadocFirstSentence("Retry policy.").build());
+            sink.type(TypeFact.builder().id(LINEAR).module("demo").kind(Facts.TypeKind.CLASS)
+                    .modifiers(Set.of("public", "static")).span(at("RetryPolicy.java", 71, 96))
+                    .supertypes(List.of(POLICY)).build());
+            sink.member(MemberFact.builder().id(EXECUTE).owner(POLICY).kind(Facts.MemberKind.METHOD)
+                    .signature("execute(Callable)").modifiers(Set.of("public", "abstract"))
+                    .span(at("RetryPolicy.java", 39, 39)).bodyHash("abcd").build());
+            sink.call(CallFact.builder().caller(RUN).callee(EXECUTE).site(at("TaskExecutor.java", 220, 220)).build());
+            sink.call(CallFact.builder().caller(EXECUTE).callee(CALL).site(at("RetryPolicy.java", 39, 39)).build());
             sink.commit();
         }
         return facts;

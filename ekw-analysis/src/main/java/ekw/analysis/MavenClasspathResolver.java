@@ -147,7 +147,7 @@ public final class MavenClasspathResolver
     }
 
     @Override
-    public Facts.Classpath resolve(Facts.ModuleSpec module) {
+    public Facts.Classpath resolve(ModuleSpec module) {
         Model model = effectiveModel(module.root().resolve("pom.xml"));
         CollectRequest collectRequest = new CollectRequest();
         collectRequest.setRepositories(List.of(CENTRAL));

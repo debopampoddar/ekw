@@ -22,11 +22,17 @@ class JdtJavaAnalyzerSampleTest {
                                                       .toURI());
     }
 
-    private static CollectingSink analyze(Facts.AnalysisReport[] report)
+    private static CollectingSink analyze(AnalysisReport[] report)
             throws URISyntaxException {
         Path root = sample();
-        Facts.ModuleSpec module = new Facts.ModuleSpec("shapes", "c0ffee", "shapes", root,
-                List.of(root.resolve("src/main/java")), List.of(), "21");
+        ModuleSpec module = ModuleSpec.builder()
+                .system("shapes")
+                .commit("c0ffee")
+                .name("shapes")
+                .root(root)
+                .sourceRoots(List.of(root.resolve("src/main/java")))
+                .javaRelease("21")
+                .build();
         CollectingSink sink = new CollectingSink();
         report[0] = new JdtJavaAnalyzer(root).analyze(module, new Facts.Classpath(List.of(), List.of()), sink);
         return sink;
@@ -34,9 +40,9 @@ class JdtJavaAnalyzerSampleTest {
 
     @Test
     void findsTypesWithKindsSpansAndSupertypes() throws Exception {
-        Facts.AnalysisReport[] report = new Facts.AnalysisReport[1];
+        AnalysisReport[] report = new AnalysisReport[1];
         CollectingSink sink = analyze(report);
-        Map<String, Facts.TypeFact> types = sink.types.stream()
+        Map<String, TypeFact> types = sink.types.stream()
                                                       .collect(Collectors.toMap(t -> t.id()
                                                                                       .value(), t -> t));
 
@@ -52,7 +58,7 @@ class JdtJavaAnalyzerSampleTest {
                                       .containsExactly("java:demo.Shape");
 
         // Spans start at the declaration, not at its Javadoc; paths are relative to the repository root.
-        Facts.TypeFact circle = types.get("java:demo.Circle");
+        TypeFact circle = types.get("java:demo.Circle");
         assertThat(circle.span()
                          .path()).isEqualTo("src/main/java/demo/Circle.java");
         assertThat(circle.span().startLine()).isEqualTo(4);
@@ -65,7 +71,7 @@ class JdtJavaAnalyzerSampleTest {
 
     @Test
     void findsMembersWithIdsAndBodyHashes() throws Exception {
-        CollectingSink sink = analyze(new Facts.AnalysisReport[1]);
+        CollectingSink sink = analyze(new AnalysisReport[1]);
         assertThat(sink.members).extracting(m -> m.id().value()).contains(
                 "java:demo.Square#<init>(double)",
                 "java:demo.Square#area()",
@@ -77,7 +83,7 @@ class JdtJavaAnalyzerSampleTest {
 
     @Test
     void resolvesEveryCallSiteAndFlagsThem() throws Exception {
-        Facts.AnalysisReport[] report = new Facts.AnalysisReport[1];
+        AnalysisReport[] report = new AnalysisReport[1];
         CollectingSink sink = analyze(report);
 
         assertThat(report[0].files()).isEqualTo(4);

@@ -20,9 +20,15 @@ class JdtJavaAnalyzerTest {
     @Test
     void analyzesAsyncExecutorUtil() throws Exception {
         Path repo = AsyncExecutorUtilFixture.checkout();
-        Facts.ModuleSpec module = new Facts.ModuleSpec("asyncexecutorutil", AsyncExecutorUtilFixture.COMMIT,
-                "asyncexecutorutil", repo, List.of(repo.resolve("src/main/java")),
-                List.of(repo.resolve("src/test/java")), "21");
+        ModuleSpec module = ModuleSpec.builder()
+                .system("asyncexecutorutil")
+                .commit(AsyncExecutorUtilFixture.COMMIT)
+                .name("asyncexecutorutil")
+                .root(repo)
+                .sourceRoots(List.of(repo.resolve("src/main/java")))
+                .testRoots(List.of(repo.resolve("src/test/java")))
+                .javaRelease("21")
+                .build();
         Facts.Classpath classpath;
         try (MavenClasspathResolver resolver = new MavenClasspathResolver(Path.of("target", "m2"), repo)) {
             classpath = resolver.resolve(module);
@@ -33,14 +39,14 @@ class JdtJavaAnalyzerTest {
                                                     .equals("junit-jupiter-api-5.9.2.jar"));
 
         CollectingSink sink = new CollectingSink();
-        Facts.AnalysisReport report = new JdtJavaAnalyzer(repo).analyze(module, classpath, sink);
+        AnalysisReport report = new JdtJavaAnalyzer(repo).analyze(module, classpath, sink);
 
         // The JDT spike measured 757 call sites in main + test code, all resolved.
         assertThat(report.callSites()).isEqualTo(757);
         assertThat(report.resolvedCallSites()).isEqualTo(757);
 
         // RetryPolicy.Linear: span L71-L96 and the fingerprint cited by the stage 1 example (rp-linear).
-        Facts.TypeFact linear = sink.types.stream()
+        TypeFact linear = sink.types.stream()
                                           .filter(t -> t.id()
                                                         .value()
                                                         .equals("java:com.debopam.asynexecutor.util.RetryPolicy.Linear"))
@@ -60,7 +66,7 @@ class JdtJavaAnalyzerTest {
                         .value()).isEqualTo("java:com.debopam.asynexecutor.util.Task");
             assertThat(t.kind()).isEqualTo(Facts.TypeKind.RECORD);
         });
-        assertThat(sink.types).filteredOn(Facts.TypeFact::test).isNotEmpty();
+        assertThat(sink.types).filteredOn(TypeFact::test).isNotEmpty();
 
         // A call inside a lambda is resolved and flagged.
         assertThat(sink.calls).anySatisfy(c -> {

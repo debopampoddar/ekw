@@ -7,46 +7,46 @@ import java.util.List;
  * In-memory FactSink for tests.
  */
 public final class CollectingSink implements Facts.FactSink {
-    public final List<Facts.TypeFact> types = new ArrayList<>();
-    public final List<Facts.MemberFact> members = new ArrayList<>();
-    public final List<Facts.CallFact> calls = new ArrayList<>();
+    public final List<TypeFact> types = new ArrayList<>();
+    public final List<MemberFact> members = new ArrayList<>();
+    public final List<CallFact> calls = new ArrayList<>();
 
     @Override
-    public void type(Facts.TypeFact t) {
+    public void type(TypeFact t) {
         types.add(t);
     }
 
     @Override
-    public void member(Facts.MemberFact m) {
+    public void member(MemberFact m) {
         members.add(m);
     }
 
     @Override
-    public void call(Facts.CallFact c) {
+    public void call(CallFact c) {
         calls.add(c);
     }
 
     @Override
-    public void annotation(Facts.AnnotationFact a) {
+    public void annotation(AnnotationFact a) {
     }
 
     @Override
-    public void configKey(Facts.ConfigKeyFact k) {
+    public void configKey(ConfigKeyFact k) {
     }
 
     @Override
-    public void errorCode(Facts.ErrorCodeFact e) {
+    public void errorCode(ErrorCodeFact e) {
     }
 
     @Override
-    public void spi(Facts.SpiFact s) {
+    public void spi(SpiFact s) {
     }
 
     @Override
-    public void module(Facts.ModuleFact m) {
+    public void module(ModuleFact m) {
     }
 
     @Override
-    public void dependency(Facts.DependencyFact d) {
+    public void dependency(DependencyFact d) {
     }
 }

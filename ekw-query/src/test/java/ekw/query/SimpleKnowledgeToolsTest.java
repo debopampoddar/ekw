@@ -1,7 +1,10 @@
 package ekw.query;
 
+import ekw.analysis.CallFact;
 import ekw.analysis.Facts;
 import ekw.analysis.Facts.SymbolId;
+import ekw.analysis.MemberFact;
+import ekw.analysis.TypeFact;
 import ekw.core.Evidence.CodeLocation;
 import ekw.store.FactsDatabase;
 import ekw.store.SqliteFacts;
@@ -51,14 +54,16 @@ class SimpleKnowledgeToolsTest {
         SymbolId execute = new SymbolId("java:demo.RetryPolicy#execute(java.util.concurrent.Callable)");
         SqliteFacts facts = new SqliteFacts(FactsDatabase.open(dir.resolve("ekw.db")));
         try (SqliteFacts.Sink sink = facts.sink("demo", "c1", "2025-02-23T17:40:45Z", "test")) {
-            sink.type(new Facts.TypeFact(policy, "demo", Facts.TypeKind.CLASS, Set.of("public"),
-                    at("src/RetryPolicy.java", 14, 135), Optional.empty(), List.of(), false));
-            sink.type(new Facts.TypeFact(new SymbolId("java:demo.RetryPolicy.Linear"), "demo", Facts.TypeKind.CLASS,
-                    Set.of("public"), at("src/RetryPolicy.java", 71, 96), Optional.empty(), List.of(policy), false));
-            sink.member(new Facts.MemberFact(execute, policy, Facts.MemberKind.METHOD, "execute(Callable)",
-                    Set.of("public"), at("src/RetryPolicy.java", 39, 39), "abcd", Optional.empty()));
-            sink.call(new Facts.CallFact(new SymbolId("java:demo.TaskExecutor#run()"), Optional.of(execute),
-                    at("src/TaskExecutor.java", 220, 220), Set.of(), Optional.empty()));
+            sink.type(TypeFact.builder().id(policy).module("demo").kind(Facts.TypeKind.CLASS)
+                    .modifiers(Set.of("public")).span(at("src/RetryPolicy.java", 14, 135)).build());
+            sink.type(TypeFact.builder().id(new SymbolId("java:demo.RetryPolicy.Linear")).module("demo")
+                    .kind(Facts.TypeKind.CLASS).modifiers(Set.of("public"))
+                    .span(at("src/RetryPolicy.java", 71, 96)).supertypes(List.of(policy)).build());
+            sink.member(MemberFact.builder().id(execute).owner(policy).kind(Facts.MemberKind.METHOD)
+                    .signature("execute(Callable)").modifiers(Set.of("public"))
+                    .span(at("src/RetryPolicy.java", 39, 39)).bodyHash("abcd").build());
+            sink.call(CallFact.builder().caller(new SymbolId("java:demo.TaskExecutor#run()")).callee(execute)
+                    .site(at("src/TaskExecutor.java", 220, 220)).build());
             sink.commit();
         }
         tools = new SimpleKnowledgeTools(wiki, facts, checkout, "demo").tools()

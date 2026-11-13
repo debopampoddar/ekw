@@ -1,7 +1,10 @@
 package ekw.store;
 
+import ekw.analysis.CallFact;
 import ekw.analysis.Facts;
 import ekw.analysis.Facts.SymbolId;
+import ekw.analysis.MemberFact;
+import ekw.analysis.TypeFact;
 import ekw.core.Evidence.CodeLocation;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -31,32 +34,35 @@ class SqliteFactsTest {
         SymbolId caller = new SymbolId("java:demo.TaskExecutor#run()");
 
         try (SqliteFacts.Sink sink = facts.sink("demo", "c1", "2025-02-23T17:40:45Z", "ekw-analyzer/0.1+jdt-3.47.0")) {
-            sink.type(new Facts.TypeFact(policy, "demo", Facts.TypeKind.CLASS, Set.of("public", "abstract"),
-                    at("RetryPolicy.java", 14, 135), Optional.of("Retry policy."), List.of(), false));
-            sink.type(new Facts.TypeFact(linear, "demo", Facts.TypeKind.CLASS, Set.of("public", "static"),
-                    at("RetryPolicy.java", 71, 96), Optional.empty(), List.of(policy), false));
-            sink.member(new Facts.MemberFact(execute, policy, Facts.MemberKind.METHOD, "execute(Callable)",
-                    Set.of("public", "abstract"), at("RetryPolicy.java", 39, 39), "abcd", Optional.empty()));
-            sink.call(new Facts.CallFact(caller, Optional.of(execute), at("TaskExecutor.java", 220, 220),
-                    Set.of(Facts.CallFlag.IN_LAMBDA), Optional.empty()));
-            sink.call(new Facts.CallFact(caller, Optional.empty(), at("TaskExecutor.java", 220, 220),
-                    Set.of(), Optional.of("no binding")));          // second call on the same line
+            sink.type(TypeFact.builder().id(policy).module("demo").kind(Facts.TypeKind.CLASS)
+                    .modifiers(Set.of("public", "abstract")).span(at("RetryPolicy.java", 14, 135))
+                    .javadocFirstSentence("Retry policy.").build());
+            sink.type(TypeFact.builder().id(linear).module("demo").kind(Facts.TypeKind.CLASS)
+                    .modifiers(Set.of("public", "static")).span(at("RetryPolicy.java", 71, 96))
+                    .supertypes(List.of(policy)).build());
+            sink.member(MemberFact.builder().id(execute).owner(policy).kind(Facts.MemberKind.METHOD)
+                    .signature("execute(Callable)").modifiers(Set.of("public", "abstract"))
+                    .span(at("RetryPolicy.java", 39, 39)).bodyHash("abcd").build());
+            sink.call(CallFact.builder().caller(caller).callee(execute).site(at("TaskExecutor.java", 220, 220))
+                    .flags(Facts.CallFlag.IN_LAMBDA).build());
+            sink.call(CallFact.builder().caller(caller).site(at("TaskExecutor.java", 220, 220))
+                    .unresolvedReason("no binding").build());          // second call on the same line
             sink.commit();
         }
 
         assertThat(facts.findTypes("demo", "Linear", 5)).singleElement()
                                                         .satisfies(t -> assertThat(t.span()
                                                                                     .startLine()).isEqualTo(71));
-        assertThat(facts.findTypes("demo", "demo.RetryPolicy", 5)).extracting(Facts.TypeFact::id)
+        assertThat(facts.findTypes("demo", "demo.RetryPolicy", 5)).extracting(TypeFact::id)
                                                                   .containsExactly(policy);
-        assertThat(facts.implementations("demo", policy, 10)).extracting(Facts.TypeFact::id)
+        assertThat(facts.implementations("demo", policy, 10)).extracting(TypeFact::id)
                                                              .containsExactly(linear);
-        assertThat(facts.members("demo", policy)).extracting(Facts.MemberFact::id)
+        assertThat(facts.members("demo", policy)).extracting(MemberFact::id)
                                                  .containsExactly(execute);
         assertThat(facts.callers("demo", execute, 10)).singleElement()
                                                       .satisfies(c -> assertThat(c.flags()).containsExactly(Facts.CallFlag.IN_LAMBDA));
         assertThat(facts.callees("demo", caller, 10)).hasSize(2);
-        assertThat(facts.memberByBodyHash("demo", "abcd")).map(Facts.MemberFact::id)
+        assertThat(facts.memberByBodyHash("demo", "abcd")).map(MemberFact::id)
                                                           .contains(execute);
     }
 

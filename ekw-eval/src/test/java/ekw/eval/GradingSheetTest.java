@@ -12,12 +12,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @Tag("ch12")
 class GradingSheetTest {
 
-    private static GradingSheet.Answer answer(String id, String setup, String cost) {
-        return new GradingSheet.Answer(id, setup, "claude-sonnet-5-5", "Question " + id + "?",
-                List.of("first point", "second point"), "An answer\nover two lines.", new BigDecimal(cost), 1000, 200, 3);
+    private static Answer answer(String id, String setup, String cost) {
+        return Answer.builder()
+                .questionId(id).setup(setup).model("claude-sonnet-5-5").question("Question " + id + "?")
+                .keyPoints(List.of("first point", "second point")).answerMarkdown("An answer\nover two lines.")
+                .costUsd(new BigDecimal(cost)).inputTokens(1000).outputTokens(200).toolCalls(3)
+                .build();
     }
 
-    private static final List<GradingSheet.Answer> ANSWERS = List.of(
+    private static final List<Answer> ANSWERS = List.of(
             answer("A01", "WIKI_TOOLS", "0.04"), answer("A02", "WIKI_TOOLS", "0.06"), answer("A01", "RAW_AGENT", "0.10"));
 
     /**
@@ -46,9 +49,9 @@ class GradingSheetTest {
     @Test
     void summarizesPerSetupAndModel() {
         String filled = fill(GradingSheet.render(ANSWERS), "1", "0.5", "1", "1", "0", "0.5");
-        List<GradingSheet.Summary> summary = GradingSheet.summarize(filled, ANSWERS);
+        List<Summary> summary = GradingSheet.summarize(filled, ANSWERS);
 
-        GradingSheet.Summary wiki = summary.stream()
+        Summary wiki = summary.stream()
                                            .filter(s -> s.setup()
                                                          .equals("WIKI_TOOLS"))
                                            .findFirst()
@@ -59,7 +62,7 @@ class GradingSheetTest {
         assertThat(wiki.totalCostUsd()).isEqualByComparingTo("0.10");
         assertThat(wiki.costPerCorrectUsd()).hasValueSatisfying(c -> assertThat(c).isEqualByComparingTo("0.05"));
 
-        GradingSheet.Summary raw = summary.stream()
+        Summary raw = summary.stream()
                                           .filter(s -> s.setup()
                                                         .equals("RAW_AGENT"))
                                           .findFirst()

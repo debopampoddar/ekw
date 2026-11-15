@@ -5,7 +5,7 @@ import ekw.analysis.Facts;
 import ekw.analysis.Facts.SymbolId;
 import ekw.analysis.MemberFact;
 import ekw.analysis.TypeFact;
-import ekw.core.Evidence.CodeLocation;
+import ekw.core.CodeLocation;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;

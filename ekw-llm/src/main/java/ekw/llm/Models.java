@@ -27,10 +27,6 @@ public final class Models {
     public record Prices(BigDecimal input, BigDecimal output, BigDecimal cacheRead, BigDecimal cacheWrite) {
     }
 
-    public record ModelInfo(String profile, String provider, String modelId, long contextTokens, long maxOutputTokens,
-                            Prices prices, boolean local, List<Role> qualifiedRoles) {
-    }
-
     /**
      * Versioned prompt reference, e.g. ("writer.component", 1). Recorded in every ledger line and page.
      */
@@ -76,20 +72,7 @@ public final class Models {
     public record ToolSpec(String name, String description, Map<String, Object> inputSchema) {
     }
 
-    /**
-     * cacheablePrefixParts: how many leading system/tool parts form the stable, cached prefix.
-     */
-    public record ChatRequest(Role role, PromptRef prompt, String system, List<Message> messages,
-                              List<ToolSpec> tools, Optional<Map<String, Object>> outputSchema,
-                              int maxOutputTokens, Optional<Effort> effort, Evidence.Packet evidence,
-                              int cacheablePrefixParts) {
-    }
-
     public record Usage(long inputTokens, long outputTokens, long cacheReadTokens, long cacheWriteTokens) {
-    }
-
-    public record ChatResult(List<Part> content, StopReason stop, Usage usage, String servedByModelId,
-                             Duration latency) {
     }
 
     public record TokenEstimate(long inputTokens, boolean exact) {

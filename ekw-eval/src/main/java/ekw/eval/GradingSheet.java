@@ -2,9 +2,7 @@ package ekw.eval;
 
 import ekw.core.Todo;
 
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * The hand-grading sheet of spike S1: a Markdown file with one block per answer, where you score each key point 1,
@@ -13,20 +11,6 @@ import java.util.Optional;
  * <p>Chapter 12 of the development guide (the exact format is described there).
  */
 public final class GradingSheet {
-
-    /**
-     * One answer to grade.
-     */
-    public record Answer(String questionId, String setup, String model, String question, List<String> keyPoints,
-                         String answerMarkdown, BigDecimal costUsd, long inputTokens, long outputTokens, int toolCalls) {
-    }
-
-    /**
-     * Per setup and model: mean score, answers with score >= 0.75 ("correct"), cost, cost per correct answer.
-     */
-    public record Summary(String setup, String model, int answers, double meanScore, int correct,
-                          BigDecimal totalCostUsd, Optional<BigDecimal> costPerCorrectUsd) {
-    }
 
     private GradingSheet() {
     }

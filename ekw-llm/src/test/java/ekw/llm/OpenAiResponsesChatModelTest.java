@@ -5,7 +5,6 @@ import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.openai.client.OpenAIClient;
 import com.openai.client.okhttp.OpenAIOkHttpClient;
-import ekw.llm.Models.ChatResult;
 import ekw.llm.Models.Message;
 import ekw.llm.Models.ToolCall;
 import ekw.llm.Models.ToolResult;

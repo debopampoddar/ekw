@@ -1,7 +1,8 @@
 package ekw.pipeline;
 
-import ekw.core.Evidence;
+import ekw.core.Item;
 import ekw.core.Todo;
+import ekw.llm.ChatRequest;
 import ekw.llm.Models;
 import ekw.llm.PromptRegistry;
 
@@ -12,14 +13,6 @@ import ekw.llm.PromptRegistry;
  * <p>Chapter 10 of the development guide.
  */
 public final class WriterCall {
-
-    /**
-     * What the page is and what it may use. The strings fill the placeholders of writer.page@1.
-     */
-    public record PageRequest(String pageType, String titleHint, String system, String commitShort,
-                              String templateSections, String typeSpecificInstructions, String linkablePages,
-                              Evidence.Packet packet) {
-    }
 
     /**
      * @param conventionsExcerpt the text that fills writer.system@1's {{conventions_sections_2_5_8}}
@@ -33,14 +26,14 @@ public final class WriterCall {
      * The request: role WRITER, prompt writer.page@1, system = filled writer.system@1, one user message = filled
      * writer.page@1 (evidence items rendered with {@link #evidenceBlock}), output schema writer.page@1, no tools.
      */
-    public Models.ChatRequest request(PageRequest page) {
+    public ChatRequest request(PageRequest page) {
         throw Todo.chapter(10, "WriterCall.request");
     }
 
     /**
      * Reserve, call, settle; then parse the model's JSON text into WriterOutput.
      */
-    public Pipeline.WriterOutput write(PageRequest page) {
+    public WriterOutput write(PageRequest page) {
         throw Todo.chapter(10, "WriterCall.write");
     }
 
@@ -52,14 +45,14 @@ public final class WriterCall {
      * </evidence>
      * }</pre>
      */
-    public static String evidenceBlock(Evidence.Item item) {
+    public static String evidenceBlock(Item item) {
         throw Todo.chapter(10, "WriterCall.evidenceBlock");
     }
 
     /**
      * The writer's JSON (schema writer.page@1, snake_case) as a WriterOutput.
      */
-    public static Pipeline.WriterOutput parse(String json) {
+    public static WriterOutput parse(String json) {
         throw Todo.chapter(10, "WriterCall.parse");
     }
 }

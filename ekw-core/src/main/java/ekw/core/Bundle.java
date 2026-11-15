@@ -62,22 +62,6 @@ public interface Bundle {
     /** One OKF sources[] entry. ekw holds our x-ekw keys (kind, path, lines, sha256, symbol...). */
     record SourceEntry(String id, String resource, String title, Map<String, Object> ekw) {}
 
-    record Frontmatter(PageType type, String title, String description, Optional<String> resource,
-                       List<SourceEntry> sources, Optional<Stamp> generated, List<Stamp> verified,
-                       Status status, Optional<Instant> staleAfter,
-                       Map<String, Object> ekw, Map<String, Object> unknownKeys) {
-        public TrustTier tier() {
-            if (verified.isEmpty()) return TrustTier.UNVERIFIED;
-            return verified.stream().anyMatch(s -> s.by().isHuman())
-                    ? TrustTier.HUMAN_REVIEWED : TrustTier.MACHINE_CONFIRMED;
-        }
-
-        public boolean isStale(Instant now) {
-            return staleAfter.map(t -> !now.isBefore(t)).orElse(false)
-                    || "stale".equals(ekw.get("evidence_state"));
-        }
-    }
-
     /** path is bundle-relative, e.g. "systems/dubbo/components/load-balancing.md". */
     record Page(String path, Frontmatter frontmatter, String body) {}
 

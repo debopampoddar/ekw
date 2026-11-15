@@ -11,7 +11,7 @@ import ekw.analysis.MemberFact;
 import ekw.analysis.ModuleFact;
 import ekw.analysis.SpiFact;
 import ekw.analysis.TypeFact;
-import ekw.core.Evidence;
+import ekw.core.CodeLocation;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.statement.PreparedBatch;
 
@@ -362,13 +362,14 @@ public final class SqliteFacts implements Facts.FactsStore {
                 .build();
     }
 
-    private static Evidence.CodeLocation location(ResultSet rs, int start, int end) throws SQLException {
-        return new Evidence.CodeLocation(rs.getString("system")
-                , rs.getString("commit_sha")
-                , rs.getString("path")
-                , start
-                , end
-                ,Optional.empty());
+    private static CodeLocation location(ResultSet rs, int start, int end) throws SQLException {
+        return CodeLocation.builder()
+                .system(rs.getString("system"))
+                .commit(rs.getString("commit_sha"))
+                .path(rs.getString("path"))
+                .startLine(start)
+                .endLine(end)
+                .build();
     }
 
     static String joined(Collection<String> words) {

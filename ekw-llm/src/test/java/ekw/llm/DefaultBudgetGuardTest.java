@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Tag("ch06")
 class DefaultBudgetGuardTest {
-    private static final Models.ModelInfo SONNET = TestModels.info("claude-sonnet-5-5", "anthropic");
+    private static final ModelInfo SONNET = TestModels.info("claude-sonnet-5-5", "anthropic");
 
     @Test
     void reservesTheWorstCaseIncludingTheDearerFallback() {

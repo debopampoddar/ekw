@@ -1,10 +1,11 @@
 package ekw.pipeline;
 
+import ekw.core.CodeLocation;
 import ekw.core.Evidence;
+import ekw.core.Item;
 import ekw.pipeline.Pipeline.Paragraph;
 import ekw.pipeline.Pipeline.Section;
 import ekw.pipeline.Pipeline.Sentence;
-import ekw.pipeline.Pipeline.WriterOutput;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -20,10 +21,14 @@ class CitationRendererTest {
     private static final String COMMIT = "ef0d2c95941b822766c392fdc04640c8cc92d053";
     private static final String PATH = "src/main/java/com/debopam/asynexecutor/util/RetryPolicy.java";
 
-    private static Evidence.Item code(String id, String title, int a, int b, String fp) {
-        return new Evidence.Item(new Evidence.Id(id),
-                new Evidence.CodeLocation("asyncexecutorutil", COMMIT, PATH, a, b, Optional.empty()),
-                title, "...", fp, Evidence.ModelPolicy.HOSTED_ALLOWED, "asyncexecutorutil");
+    private static Item code(String id, String title, int a, int b, String fp) {
+        return Item.builder()
+                .id(new Evidence.Id(id))
+                .location(CodeLocation.builder().system("asyncexecutorutil").commit(COMMIT).path(PATH)
+                        .startLine(a).endLine(b).build())
+                .title(title).content("...").fingerprint(fp).policy(Evidence.ModelPolicy.HOSTED_ALLOWED)
+                .sourceId("asyncexecutorutil")
+                .build();
     }
 
     private static final Evidence.Packet PACKET = new Evidence.Packet(List.of(
@@ -34,9 +39,11 @@ class CitationRendererTest {
         List<Sentence> sentences = java.util.Arrays.stream(ids)
                                                    .map(i -> new Sentence("Claim citing " + i + ".", List.of(new Evidence.Id(i))))
                                                    .toList();
-        return new WriterOutput("Retry policies", "How a task is retried.",
-                List.of(new Section("How it works", List.of(new Paragraph(sentences)), Optional.empty())),
-                List.of("Fixed delays suit transient failures."), List.of("retry"), List.of(), List.of(), List.of());
+        return WriterOutput.builder()
+                .title("Retry policies").description("How a task is retried.")
+                .sections(List.of(new Section("How it works", List.of(new Paragraph(sentences)), Optional.empty())))
+                .synthesis(List.of("Fixed delays suit transient failures.")).conceptSlugs(List.of("retry"))
+                .build();
     }
 
     @Test

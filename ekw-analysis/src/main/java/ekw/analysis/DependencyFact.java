@@ -1,6 +1,6 @@
 package ekw.analysis;
 
-import ekw.core.Evidence.CodeLocation;
+import ekw.core.CodeLocation;
 
 import java.util.Objects;
 

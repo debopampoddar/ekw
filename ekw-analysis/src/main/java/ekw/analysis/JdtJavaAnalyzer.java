@@ -5,7 +5,7 @@ import ekw.analysis.Facts.FactSink;
 import ekw.analysis.Facts.MemberKind;
 import ekw.analysis.Facts.SymbolId;
 import ekw.analysis.Facts.TypeKind;
-import ekw.core.Evidence.CodeLocation;
+import ekw.core.CodeLocation;
 import ekw.core.Fingerprint;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;

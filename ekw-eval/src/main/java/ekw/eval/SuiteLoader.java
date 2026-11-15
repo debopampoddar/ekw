@@ -15,7 +15,7 @@ import java.util.Map;
  */
 public final class SuiteLoader {
 
-    public record Suite(String name, String system, String commit, List<Eval.EvalQuestion> questions) {
+    public record Suite(String name, String system, String commit, List<EvalQuestion> questions) {
     }
 
     private SuiteLoader() {

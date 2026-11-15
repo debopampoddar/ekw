@@ -1,7 +1,12 @@
 package ekw.pipeline;
 
+import ekw.core.CodeLocation;
 import ekw.core.Evidence;
+import ekw.core.Item;
+import ekw.llm.ChatRequest;
+import ekw.llm.ChatResult;
 import ekw.llm.DefaultBudgetGuard;
+import ekw.llm.ModelInfo;
 import ekw.llm.Models;
 import ekw.llm.PriceTable;
 import ekw.llm.PromptRegistry;
@@ -33,17 +38,24 @@ class WriterCallTest {
         }
     }
 
-    private static final Evidence.Item CODE = new Evidence.Item(new Evidence.Id("E2"),
-            new Evidence.CodeLocation("asyncexecutorutil", COMMIT,
-                    "src/main/java/com/debopam/asynexecutor/util/RetryPolicy.java", 71, 96, Optional.empty()),
-            "RetryPolicy.Linear", "public static class Linear extends RetryPolicy {", "358dcfc3d6460042",
-            Evidence.ModelPolicy.HOSTED_ALLOWED, "asyncexecutorutil");
+    private static final Item CODE = Item.builder()
+            .id(new Evidence.Id("E2"))
+            .location(CodeLocation.builder().system("asyncexecutorutil").commit(COMMIT)
+                    .path("src/main/java/com/debopam/asynexecutor/util/RetryPolicy.java").startLine(71).endLine(96)
+                    .build())
+            .title("RetryPolicy.Linear").content("public static class Linear extends RetryPolicy {")
+            .fingerprint("358dcfc3d6460042").policy(Evidence.ModelPolicy.HOSTED_ALLOWED)
+            .sourceId("asyncexecutorutil")
+            .build();
 
-    private static final Evidence.Item ONE_LINE = new Evidence.Item(new Evidence.Id("E1"),
-            new Evidence.CodeLocation("asyncexecutorutil", COMMIT,
-                    "src/main/java/com/debopam/asynexecutor/util/Task.java", 44, 44, Optional.empty()),
-            "Task.Builder default policy", "private RetryPolicy retryPolicy = RetryPolicy.none();", "96287f82fc11f10c",
-            Evidence.ModelPolicy.LOCAL_ONLY, "private-repo");
+    private static final Item ONE_LINE = Item.builder()
+            .id(new Evidence.Id("E1"))
+            .location(CodeLocation.builder().system("asyncexecutorutil").commit(COMMIT)
+                    .path("src/main/java/com/debopam/asynexecutor/util/Task.java").startLine(44).endLine(44)
+                    .build())
+            .title("Task.Builder default policy").content("private RetryPolicy retryPolicy = RetryPolicy.none();")
+            .fingerprint("96287f82fc11f10c").policy(Evidence.ModelPolicy.LOCAL_ONLY).sourceId("private-repo")
+            .build();
 
     @Test
     void rendersEvidenceBlocks() {
@@ -57,7 +69,7 @@ class WriterCallTest {
 
     @Test
     void parsesTheWritersJson() throws IOException {
-        Pipeline.WriterOutput out = WriterCall.parse(json());
+        WriterOutput out = WriterCall.parse(json());
         assertThat(out.title()).isEqualTo("Retry policies");
         assertThat(out.sections()).hasSize(2);
         Pipeline.Sentence second = out.sections()
@@ -80,7 +92,7 @@ class WriterCallTest {
      * Returns the recorded JSON and remembers the request.
      */
     static final class ScriptedWriter implements Models.ChatModel {
-        final List<Models.ChatRequest> requests = new ArrayList<>();
+        final List<ChatRequest> requests = new ArrayList<>();
         final String reply;
 
         ScriptedWriter(String reply) {
@@ -88,19 +100,24 @@ class WriterCallTest {
         }
 
         @Override
-        public Models.ModelInfo info() {
-            return new Models.ModelInfo("fake", "test", "fake", 200_000, 16_000, PRICES, false, List.of());
+        public ModelInfo info() {
+            return ModelInfo.builder()
+                    .profile("fake").provider("test").modelId("fake")
+                    .contextTokens(200_000).maxOutputTokens(16_000).prices(PRICES)
+                    .build();
         }
 
         @Override
-        public Models.ChatResult chat(Models.ChatRequest r) {
+        public ChatResult chat(ChatRequest r) {
             requests.add(r);
-            return new Models.ChatResult(List.of(new Models.Text(reply)), Models.StopReason.END_TURN,
-                    new Models.Usage(5_000, 1_000, 0, 0), "fake", Duration.ZERO);
+            return ChatResult.builder()
+                    .content(List.of(new Models.Text(reply))).stop(Models.StopReason.END_TURN)
+                    .usage(new Models.Usage(5_000, 1_000, 0, 0)).servedByModelId("fake").latency(Duration.ZERO)
+                    .build();
         }
 
         @Override
-        public Models.TokenEstimate estimate(Models.ChatRequest r) {
+        public Models.TokenEstimate estimate(ChatRequest r) {
             return new Models.TokenEstimate(5_000, true);
         }
     }
@@ -111,11 +128,14 @@ class WriterCallTest {
         DefaultBudgetGuard guard = new DefaultBudgetGuard(new BigDecimal("1"), TABLE, Map.of());
         WriterCall writer = new WriterCall(model, guard, PromptRegistry.fromClasspath(), "CONVENTIONS EXCERPT",
                 Models.Effort.HIGH, 16_000);
-        WriterCall.PageRequest page = new WriterCall.PageRequest("Component", "Retry policies", "asyncexecutorutil",
-                "ef0d2c9", "## What it does *", "Explain the component.", "(none)",
-                new Evidence.Packet(List.of(ONE_LINE, CODE)));
+        PageRequest page = PageRequest.builder()
+                .pageType("Component").titleHint("Retry policies").system("asyncexecutorutil")
+                .commitShort("ef0d2c9").templateSections("## What it does *")
+                .typeSpecificInstructions("Explain the component.").linkablePages("(none)")
+                .packet(new Evidence.Packet(List.of(ONE_LINE, CODE)))
+                .build();
 
-        Models.ChatRequest request = writer.request(page);
+        ChatRequest request = writer.request(page);
         assertThat(request.role()).isEqualTo(Models.Role.WRITER);
         assertThat(request.prompt()).isEqualTo(new Models.PromptRef("writer.page", 1));
         assertThat(request.system()).contains("CONVENTIONS EXCERPT")
@@ -135,7 +155,7 @@ class WriterCallTest {
                         .doesNotContain("{{");
         assertThat(request.evidence().items()).hasSize(2);
 
-        Pipeline.WriterOutput out = writer.write(page);
+        WriterOutput out = writer.write(page);
         assertThat(out.title()).isEqualTo("Retry policies");
         assertThat(model.requests).hasSize(1);
         assertThat(guard.spentUsd()).isEqualByComparingTo("0.02");     // 5K x $2 + 1K x $10, per million

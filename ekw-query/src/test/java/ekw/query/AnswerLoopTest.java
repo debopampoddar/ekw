@@ -1,9 +1,10 @@
 package ekw.query;
 
+import ekw.llm.ChatRequest;
+import ekw.llm.ChatResult;
 import ekw.llm.DefaultBudgetGuard;
+import ekw.llm.ModelInfo;
 import ekw.llm.Models;
-import ekw.llm.Models.ChatRequest;
-import ekw.llm.Models.ChatResult;
 import ekw.llm.Models.Part;
 import ekw.llm.Models.Text;
 import ekw.llm.Models.ToolCall;
@@ -43,8 +44,9 @@ class AnswerLoopTest {
         }
 
         @Override
-        public Models.ModelInfo info() {
-            return new Models.ModelInfo("fake", "test", "fake", 200_000, 8_000, PRICES, false, List.of());
+        public ModelInfo info() {
+            return ModelInfo.builder().profile("fake").provider("test").modelId("fake")
+                    .contextTokens(200_000).maxOutputTokens(8_000).prices(PRICES).build();
         }
 
         @Override
@@ -52,9 +54,13 @@ class AnswerLoopTest {
             requests.add(r);
             List<Part> parts = replies.removeFirst();
             boolean tool = parts.stream().anyMatch(p -> p instanceof ToolCall);
-            return new ChatResult(parts, tool ? Models.StopReason.TOOL_USE
-                                              : Models.StopReason.END_TURN,
-                    new Models.Usage(1_000, 100, 0, 0), "fake", Duration.ZERO);
+            return ChatResult.builder()
+                    .content(parts)
+                    .stop(tool ? Models.StopReason.TOOL_USE : Models.StopReason.END_TURN)
+                    .usage(new Models.Usage(1_000, 100, 0, 0))
+                    .servedByModelId("fake")
+                    .latency(Duration.ZERO)
+                    .build();
         }
 
         @Override

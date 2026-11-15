@@ -2,7 +2,7 @@ package ekw.analysis;
 
 import ekw.analysis.Facts.CallFlag;
 import ekw.analysis.Facts.SymbolId;
-import ekw.core.Evidence.CodeLocation;
+import ekw.core.CodeLocation;
 
 import java.util.Arrays;
 import java.util.EnumSet;

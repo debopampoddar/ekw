@@ -2,7 +2,6 @@ package ekw.pipeline;
 
 import ekw.core.Evidence;
 import ekw.core.Todo;
-import ekw.pipeline.Pipeline.WriterOutput;
 
 import java.util.List;
 import java.util.Map;

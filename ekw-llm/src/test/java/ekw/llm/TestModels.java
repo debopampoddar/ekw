@@ -1,7 +1,6 @@
 package ekw.llm;
 
 import ekw.core.Evidence;
-import ekw.llm.Models.ModelInfo;
 import ekw.llm.Models.Prices;
 
 import java.math.BigDecimal;
@@ -26,13 +25,19 @@ final class TestModels {
     }
 
     static ModelInfo info(String id, String provider) {
-        return new ModelInfo(id, provider, id, 1_000_000, 128_000, PRICES.entry(id)
-                                                                         .prices(), false, List.of());
+        return ModelInfo.builder()
+                .profile(id).provider(provider).modelId(id)
+                .contextTokens(1_000_000).maxOutputTokens(128_000)
+                .prices(PRICES.entry(id).prices())
+                .build();
     }
 
-    static Models.ChatRequest request(List<Models.Message> messages, List<Models.ToolSpec> tools) {
-        return new Models.ChatRequest(Models.Role.ANSWERER, new Models.PromptRef("answer.system", 1), "You answer.",
-                messages, tools, Optional.empty(), 2000, Optional.of(Models.Effort.HIGH), new Evidence.Packet(List.of()), 2);
+    static ChatRequest request(List<Models.Message> messages, List<Models.ToolSpec> tools) {
+        return ChatRequest.builder()
+                .role(Models.Role.ANSWERER).prompt(new Models.PromptRef("answer.system", 1)).system("You answer.")
+                .messages(messages).tools(tools).maxOutputTokens(2000).effort(Models.Effort.HIGH)
+                .evidence(new Evidence.Packet(List.of())).cacheablePrefixParts(2)
+                .build();
     }
 
     static Models.ToolSpec readPage() {

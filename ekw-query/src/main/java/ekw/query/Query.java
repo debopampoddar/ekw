@@ -2,6 +2,7 @@ package ekw.query;
 
 import ekw.core.Bundle;
 import ekw.core.Evidence;
+import ekw.core.Item;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -19,29 +20,13 @@ public final class Query {
         T8_RUNBOOK, T9_DRIFT, T10_EXISTENCE, T11_LOCATE, T12_IMPACT, T13_HISTORY, T14_CROSS_SYSTEM
     }
 
-    public record Route(QuestionType type, List<String> entities, List<String> systems, List<String> startPages,
-                        int maxToolCalls, long inputTokenBudget, boolean supportCheck) {
-    }
-
-    public record IndexEntry(String path, String title, String type, String description, Bundle.Status status,
-                             Bundle.TrustTier tier) {
-    }
-
-    public record PageView(String path, String type, Bundle.Status status, Bundle.TrustTier tier, boolean stale,
-                           String text, List<Evidence.Item> citedEvidence) {
-    }
-
-    public record SearchHit(Evidence.Item item, double score, String snippet) {
+    public record SearchHit(Item item, double score, String snippet) {
     }
 
     public record FactsQuery(String op, String name, Optional<String> system, int limit) {
     }
 
     public record DiagramRequest(String kind, String focus, int depth) {
-    }
-
-    public record DraftAnswer(String question, String title, String answerMarkdown, List<Evidence.Id> cited,
-                              Optional<String> promoteTo) {
     }
 
     public record OpenQuestion(String question, String whyOpen, List<String> checked) {
@@ -57,13 +42,13 @@ public final class Query {
 
         List<SearchHit> search(String query, String scope, Optional<String> system, int limit);
 
-        List<Evidence.Item> codeFacts(FactsQuery query);
+        List<Item> codeFacts(FactsQuery query);
 
-        Evidence.Item readCodeLines(String system, String path, int start, int end);
+        Item readCodeLines(String system, String path, int start, int end);
 
-        Evidence.Item readDocSection(String doc, String section);
+        Item readDocSection(String doc, String section);
 
-        Evidence.Item diagram(DiagramRequest request);
+        Item diagram(DiagramRequest request);
 
         String saveAnswerDraft(DraftAnswer draft);       // returns the draft's bundle path
 
@@ -75,11 +60,6 @@ public final class Query {
     public enum Outcome {ANSWERED, NOT_FOUND, DOCUMENTED_UNSUPPORTED, INCONCLUSIVE, INCOMPLETE_BUDGET}
 
     public record ClaimView(String sentence, List<Evidence.Id> cited, boolean weak, Optional<String> weakReason) {
-    }
-
-    public record Answer(Outcome outcome, String markdown, List<ClaimView> claims, List<String> synthesis,
-                         List<String> checked, List<Evidence.Item> sources, Confidence confidence,
-                         BigDecimal costUsd, long inputTokens, long outputTokens, Optional<String> savedDraft) {
     }
 
     public record AskOptions(Optional<String> sessionId, boolean save, Optional<String> modelProfile,

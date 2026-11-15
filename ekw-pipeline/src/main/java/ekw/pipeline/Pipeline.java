@@ -1,11 +1,11 @@
 package ekw.pipeline;
 
 import ekw.core.Bundle;
+import ekw.core.CodeLocation;
 import ekw.core.Evidence;
-import ekw.llm.Models;
+import ekw.core.Item;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,10 +20,6 @@ public final class Pipeline {
 
     // ---- sources ----------------------------------------------------------------------------------------------
 
-    public record SourceConfig(String id, String kind, String url, Optional<String> branch, String owner,
-                               Evidence.ModelPolicy policy, BigDecimal budgetUsdPerRun, Map<String, Object> options) {
-    }
-
     public enum TriageDecision {
         ANALYZE, ANALYZE_TESTS, BUILD_FACTS, SPI_FACTS, CONFIG_FACTS, DOCUMENT,
         INJECTION_SURFACE, METADATA, INDEX_ONLY, CITE_CANDIDATE, SKIP
@@ -35,23 +31,6 @@ public final class Pipeline {
     public record Redaction(String pathOrId, int line, String rule) {
     }
 
-    /**
-     * One URI in, one raw artifact plus this receipt out (the workshop's adapter contract). Stored as JSON in raw/
-     * (snake_case field names). It records the read and never contains code.
-     *
-     * @param version         commit SHA for repositories (JSON "commit"); content hash for documents and tickets
-     * @param previousVersion the version read by the previous run (JSON "previous_commit"); empty on the first run
-     * @param checkout        repositories only: the git-ignored checkout under .cache/repos/ at {@code version}
-     * @param versionTime     commit time for repositories; last-modified time for documents, when known
-     * @param fileCounts      e.g. java_main, java_test, build, docs, other, skipped
-     */
-    public record Receipt(String sourceId, String origin, String originalUri, String rawPath,
-                          Optional<String> checkout, Optional<String> branch, String version,
-                          Optional<String> previousVersion, Optional<Instant> versionTime, Instant fetchedAt,
-                          List<String> changedPaths, Map<String, Integer> fileCounts, List<TriageEntry> triage,
-                          List<Redaction> redactions, int injectionFindings) {
-    }
-
     public interface SourceAdapter {
         String kind();                                   // git-repository, markdown-folder, confluence-export, github-issues
 
@@ -61,11 +40,6 @@ public final class Pipeline {
     // ---- planning ---------------------------------------------------------------------------------------------
 
     public enum WorkKind {WRITE_PAGE, REWRITE_SECTIONS, DEPRECATE_PAGE, RELOCATE_ONLY}
-
-    public record WorkItem(String id, WorkKind kind, Bundle.PageType type, String targetPath,
-                           Set<String> sectionsToWrite, Set<String> readOnlySections, Evidence.Packet packet,
-                           double rank, Models.PromptRef prompt, String inputHash) {
-    }
 
     public record WorkPlan(String runId, List<WorkItem> items, BigDecimal estimateUsd, List<String> cutByBudget) {
     }
@@ -88,11 +62,6 @@ public final class Pipeline {
     public record Section(String heading, List<Paragraph> paragraphs, Optional<String> diagramEvidenceId) {
     }
 
-    public record WriterOutput(String title, String description, List<Section> sections, List<String> synthesis,
-                               List<String> conceptSlugs, List<String> readCoverage, List<String> notRead,
-                               List<String> evidenceRequests) {
-    }
-
     public interface PageWriter {
         WriterOutput write(WorkItem item, Optional<Bundle.Page> current);
     }
@@ -108,7 +77,7 @@ public final class Pipeline {
 
     public enum Verdict {SUPPORTED, PARTIAL, UNSUPPORTED}
 
-    public record Claim(String pagePath, String sentence, List<Evidence.Item> cited) {
+    public record Claim(String pagePath, String sentence, List<Item> cited) {
     }
 
     public record ClaimVerdict(Claim claim, Verdict verdict, String reason, String missing) {
@@ -139,27 +108,18 @@ public final class Pipeline {
      * Moves citations whose code moved but did not change; reports the ones whose evidence changed.
      */
     public interface EvidenceRelocator {
-        record Result(Map<String, Evidence.CodeLocation> moved, Set<String> changed) {
+        record Result(Map<String, CodeLocation> moved, Set<String> changed) {
         }
 
-        Result relocate(String system, String oldCommit, String newCommit, List<Evidence.Item> citations);
+        Result relocate(String system, String oldCommit, String newCommit, List<Item> citations);
     }
 
     // ---- lint and runs ----------------------------------------------------------------------------------------
 
     public enum Severity {INFO, WARNING, ERROR, BLOCKER}
 
-    public record Finding(String ruleId, Severity severity, String pagePath, String message, boolean needsPerson) {
-    }
-
     public interface Linter {
         List<Finding> lint(Bundle bundle, Set<String> pagePaths, boolean includeModelRules);
-    }
-
-    public record RunSummary(String runId, String sourceId, List<String> pagesAdded, List<String> pagesChanged,
-                             int pagesKept, BigDecimal estimateUsd, BigDecimal spentUsd, List<Finding> findings,
-                             List<String> reviewSample, boolean partial, List<String> pendingItems,
-                             boolean firstBuild, boolean autoMerged) {
     }
 
     public enum AutoMerge {OFF, WHEN_CLEAN}

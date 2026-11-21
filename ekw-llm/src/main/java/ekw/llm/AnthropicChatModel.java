@@ -70,7 +70,12 @@ public final class AnthropicChatModel implements Models.ChatModel {
         if (output != null)
             messageCreateParamsBuilder.outputConfig(output);
         tools(request.tools()).forEach(messageCreateParamsBuilder::addTool);
-        request.messages().forEach(m -> addMessage(messageCreateParamsBuilder, m));
+        List<Models.Message> messages = request.messages();
+        for (int i = 0; i < messages.size(); i++) {
+            Models.Message m = messages.get(i);
+            if (i == messages.size() - 1 && cachesPrefix(m)) messageCreateParamsBuilder.addMessage(withCachedPrefix(m));
+            else addMessage(messageCreateParamsBuilder, m);
+        }
 
         long start = System.nanoTime();
         Message reply = anthropicClient.messages().create(messageCreateParamsBuilder.build());
@@ -98,6 +103,22 @@ public final class AnthropicChatModel implements Models.ChatModel {
                 , anthropicUsage.cacheCreationInputTokens().orElse(0L));
 
         return new ChatResult(parts, stop(reply), usage, reply.model().asString(), latency);
+    }
+
+    /** A user message split into several text parts asks to cache all but its last part (chapter 21). */
+    static boolean cachesPrefix(Models.Message m) {
+        return "user".equals(m.role()) && m.parts().size() >= 2 && m.parts().stream().allMatch(p -> p instanceof Text);
+    }
+
+    /** The message with a cache point after its next-to-last part: what comes before it is read from the cache next time. */
+    static MessageParam withCachedPrefix(Models.Message m) {
+        List<ContentBlockParam> blocks = new ArrayList<>();
+        for (int i = 0; i < m.parts().size(); i++) {
+            TextBlockParam.Builder block = TextBlockParam.builder().text(((Text) m.parts().get(i)).text());
+            if (i == m.parts().size() - 2) block.cacheControl(CacheControlEphemeral.builder().build());
+            blocks.add(ContentBlockParam.ofText(block.build()));
+        }
+        return MessageParam.builder().role(MessageParam.Role.USER).contentOfBlockParams(blocks).build();
     }
 
     private static void addMessage(MessageCreateParams.Builder messageCreateParamsBuilder,

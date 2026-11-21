@@ -371,6 +371,24 @@ public final class JdtJavaAnalyzer implements Facts.LanguageAnalyzer {
             return true;
         }
 
+        @Override
+        public boolean visit(org.eclipse.jdt.core.dom.EnumConstantDeclaration n) {
+            IVariableBinding v = n.resolveVariable();
+            if (v == null || v.getDeclaringClass() == null) return true;
+            String owner = v.getDeclaringClass().getErasure().getQualifiedName();
+            sink.member(MemberFact.builder()
+                    .id(new SymbolId("java:" + owner + "#" + v.getName()))
+                    .owner(typeId(v.getDeclaringClass()))
+                    .kind(MemberKind.ENUM_CONSTANT)
+                    .signature(v.getType().getErasure().getQualifiedName() + " " + v.getName())
+                    .modifiers(modifiers(n.getModifiers()))
+                    .span(span(n, n.getJavadoc()))
+                    .bodyHash(bodyHash(n, n.getJavadoc()))
+                    .javadocFirstSentence(firstSentence(n.getJavadoc()))
+                    .build());
+            return true;
+        }
+
         // ---- call sites (as in the spike: every invocation form, with flags) --------------------------------------
 
         @Override
